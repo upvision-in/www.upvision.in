@@ -63,17 +63,11 @@ body {
 }
 
 .top-bar .contact {
-  text-align: center;
+  text-align: left;
 }
 
 .top-bar .social {
-  text-align: center;
-}
-
-@media (max-width: 576px) {
-  .top-bar .social {
-    text-align: left;
-  }
+  text-align: right;
 }
 
 .navbar .navbar-toggler-right {

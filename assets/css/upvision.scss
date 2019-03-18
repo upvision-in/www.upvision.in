@@ -55,13 +55,10 @@ body {
         }
     }
     .contact { 
-        text-align: center;
+        text-align: left;
     }
     .social { 
-        text-align: center; 
-        @include xs{
-            text-align: left;
-        }
+        text-align: right;
     }
 }
 
@@ -230,83 +227,92 @@ main {
 /*****            Footer            *****/
 /****************************************/
 
+.logo{
+        text-align: right;
+        margin: 5px 20px;
+}
+
+
+/* Footer All Links 
 footer {
-   /* Footer All Links */
-    .all-links { 
-        background-color: #2e2e2e; padding:30px 0 30px 0; 
-        
+   
+   .all-links { 
+    background-color: #2e2e2e; padding:30px 0 30px 0; 
+    
+}
+.footer-nav{
+    margin: auto; padding: 0; max-width: 1024px;
+    >li:first-child{
+        margin-right: 100px; margin-left: 50px;
+        @include md{
+            margin: 0 0 25px 0;
+        }
     }
-    .footer-nav{
-        margin: auto; padding: 0; max-width: 1024px;
-        >li:first-child{
-            margin-right: 100px; margin-left: 50px;
-            @include md{
-                margin: 0 0 25px 0;
+    >li:last-child{
+        margin-left: 50px;
+    }
+    li{
+        width: 35%;
+        display: inline-block; 
+        vertical-align: top;
+        @include md{
+            width: 100%;
+            display: block;
+            text-align: center;
+            margin: 0;
+        }
+        .logo , .logo-statement{
+            display: inline-flex;
+            margin: 5px 20px;
+            a{
+                margin-right: 5px;
+            }
+            p{
+                color: #fff; font-size: 14px; font-weight: lighter; text-justify: auto;
             }
         }
-        >li:last-child{
-            margin-left: 50px;
+        .logo-statement{
+            @include md{ display: none;}
         }
-        li{
-            width: 35%;
-            display: inline-block; 
-            vertical-align: top;
+        .click-head{
+            margin-top: .5rem;
+            color: #{$logo-yellow}; font-weight: 500;
             @include md{
+                width: 200px ;
+                margin: auto;
+                padding: 20px 0 ;
+                text-align: center;
+                border-top: #42a5f5 solid 1px;
+            }
+        }
+        .internal-link{ 
+            margin-top: 20px; font-size: 100%; padding: 0;
+            @include md{
+                text-align: center;
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            li{
                 width: 100%;
                 display: block;
-                text-align: center;
-                margin: 0;
-            }
-            .logo , .logo-statement{
-                display: inline-flex;
-                margin: 5px 20px;
-                a{
-                    margin-right: 5px;
-                }
-                p{
-                    color: #fff; font-size: 14px; font-weight: lighter; text-justify: auto;
-                }
-            }
-            .logo-statement{
-                @include md{ display: none;}
-            }
-            .click-head{
-                margin-top: .5rem;
-                color: #{$logo-yellow}; font-weight: 500;
+                text-align: left; margin-bottom: 5px;
+                animation: fadeInDown 300ms linear 300ms both;
                 @include md{
-                    width: 200px ;
-                    margin: auto;
-                    padding: 20px 0 ;
-                    text-align: center;
-                    border-top: #42a5f5 solid 1px;
+                    border: none;
+                    text-align: center
                 }
-            }
-            .internal-link{ 
-                margin-top: 20px; font-size: 100%; padding: 0;
-                @include md{
-                    text-align: center;
-                    margin-top: 0;
-                    margin-bottom: 0;
+                a{ 
+                color: #fff; font-size: 14px; font-weight: lighter;
                 }
-                li{
-                    width: 100%;
-                    display: block;
-                    text-align: left; margin-bottom: 5px;
-                    animation: fadeInDown 300ms linear 300ms both;
-                    @include md{
-                        border: none;
-                        text-align: center
-                    }
-                    a{ 
-                    color: #fff; font-size: 14px; font-weight: lighter;
-                    }
-                    a:hover{
-                    color: #87d5e9;
-                    }
+                a:hover{
+                color: #87d5e9;
                 }
             }
         }
     }
+}
+*/
+
     /* Footer contact bar*/   
   /*  .foot-bar { 
         padding: 0.75rem 0;
