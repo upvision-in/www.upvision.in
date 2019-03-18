@@ -2,3 +2,5 @@ _site
 .sass-cache
 .jekyll-metadata
 .dockerignore
+upvision.scss
+upvision.css.map
