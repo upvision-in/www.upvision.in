@@ -1,0 +1,72 @@
+/* ----------------------------------------------------------------------------------------------
+NUMBER OF COLUMNS: Adjust #sitemapNAV li to set the number of columns required in the site map.
+The default is 4 columns (25%). 5 columns would be 20%, 6 columns would be 16.6%, etc.
+---------------------------------------------------------------------------------------------- */
+#sitemapNAV li { width:20%; }
+#sitemapNAV li ul li { width:100% !important; }
+
+#sitemapNAV.col1 li { width:99.9%; }
+#sitemapNAV.col2 li { width:50.0%; }
+#sitemapNAV.col3 li { width:33.3%; }
+#sitemapNAV.col4 li { width:25.0%; }
+#sitemapNAV.col5 li { width:20.0%; }
+#sitemapNAV.col6 li { width:16.6%; }
+#sitemapNAV.col7 li { width:14.2%; }
+#sitemapNAV.col8 li { width:12.5%; }
+#sitemapNAV.col9 li { width:11.1%; }
+#sitemapNAV.col10 li { width:10.0%; }
+
+/* --------	General Styles --------- */
+.sitemap { margin: 0; float: left; width: 100%; padding: 1rem 0 2rem 0; }
+.sitemap ul, .sitemap ol { list-style: none; padding: 0; }
+.sitemap a { text-decoration: none; }
+
+/* --------	Site Map Styles --------- */
+#sitemapNAV { margin: 0; float: left; width: 100%; }
+#sitemapNAV #home { display: block; float: none; position: relative; z-index: 2; padding: 0 0 20px 0; margin: auto; background: url('../images/sitemap/vertical-line.png') center bottom no-repeat; }
+#sitemapNAV #home a { background-color: #f1cacb; border-color: #e9b0b1; color: #c52d2f; }
+#sitemapNAV #home a:hover { background-color: #f8e5e5; border-color: #e29697; }
+#sitemapNAV li { float: left; padding: 30px 0 0 0; margin-top: -15px; background: url('../images/sitemap/L1-center.png') center top no-repeat; }
+#sitemapNAV li a { margin: 0 2px 0 2px; padding: 1px 0; display: block; font-size: 10px; font-weight: bold; text-align: center; color: black; background: #d0dffc url('../images/sitemap/white-highlight.png') top left repeat-x; border: 1px solid #b9cffa; -moz-border-radius: 2px; -webkit-border-radius: 2px; -webkit-box-shadow: rgba(0,0,0,0.4) 1px 1px 1px; -moz-box-shadow: rgba(0,0,0,0.4) 1px 1px 1px; /* FF 3.5+ */ }
+#sitemapNAV li a:hover { background-color: #e8effd; border-color: #a2bff8; }
+#sitemapNAV > li:first-child + li { background: url('../images/sitemap/L1-left.png') center top no-repeat; }
+#sitemapNAV > li:last-child { background: url('../images/sitemap/L1-right.png') center top no-repeat; }
+#sitemapNAV a:link:before, #sitemapNAV a:visited:before { content: " "attr(href)" "; display: block; text-transform: uppercase; font-size: 8px; word-wrap: break-word; }
+#sitemapNAV li a:link:before, #sitemapNAV li a:visited:before { color: #78a9c0; }
+
+/* --------	Second Level --------- */
+#sitemapNAV li li { width: 100%; clear: left; margin-top: 0; padding: 10px 0 0 0; background: url('../images/sitemap/vertical-line.png') center bottom repeat-y; }
+#sitemapNAV li li a { background-color: #feedcc; border-color: #fde4b3; }
+#sitemapNAV li li a:hover { background-color: #fef6e6; border-color: #fcdb9a; }
+#sitemapNAV li li:first-child { padding-top: 30px; }
+#sitemapNAV li li:last-child { background: url('../images/sitemap/vertical-line.png') center bottom repeat-y; }
+#sitemapNAV li li a:link:before, #sitemapNAV li li a:visited:before { color: #8faf5c; }
+
+/* --------	Third Level --------- */
+#sitemapNAV li li ul { width: 100%; float: right; padding: 0 0 15px 0; }
+#sitemapNAV li li li { padding: 5px 0; }
+#sitemapNAV li li li a { background-color: #f1ddca; border-color: #e9ccb0; font-size: 9px; padding: 5px 0; width: 80%; float: right; }
+#sitemapNAV li li li a:hover { background-color: #f8eee5; border-color: #e2bb96; }
+#sitemapNAV li li li:first-child { padding: 15px 0 5px 0; }
+#sitemapNAV li li li a:link:before,
+#sitemapNAV li li li a:visited:before { color: #c5772d; font-size: 8px; }
+
+
+/* --------	Media Queries --------- */
+@media (min-width: 768px) {
+	.sitemap { padding: 1.5rem 0 3rem 0; }
+
+	#sitemapNAV li a { margin: 0 5px 0 5px; padding: 2px 0; font-size: 12px; border: 2px solid #b9cffa; -moz-border-radius: 5px; -webkit-border-radius: 5px; -webkit-box-shadow: rgba(0,0,0,0.4) 2px 2px 2px; -moz-box-shadow: rgba(0,0,0,0.4) 2px 2px 2px; /* FF 3.5+ */ }
+	#sitemapNAV a:link:before, #sitemapNAV a:visited:before { font-size: 9px; }
+	#sitemapNAV li li li a { font-size: 10px; }
+	#sitemapNAV li li li a:visited:before { font-size: 8px; }
+}
+
+@media (min-width: 900px) {
+	.sitemap { padding: 2rem 0 4rem 0; }
+
+	#sitemapNAV li a { margin: 0 10px 0 10px; padding: 4px 0; font-size: 14px; border: 2px solid #b9cffa; -moz-border-radius: 5px; -webkit-border-radius: 5px; -webkit-box-shadow: rgba(0,0,0,0.4) 2px 2px 2px; -moz-box-shadow: rgba(0,0,0,0.4) 2px 2px 2px; /* FF 3.5+ */ }
+	#sitemapNAV a:link:before, #sitemapNAV a:visited:before { font-size: 10px; }
+	#sitemapNAV li li li a { font-size: 12px; }
+	#sitemapNAV li li li a:visited:before { font-size: 9px; }
+}
