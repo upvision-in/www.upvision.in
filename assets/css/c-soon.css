@@ -7,8 +7,14 @@ body{
 }
 
 .maintanance img{
-  width: 250px;
+  width: 230px;
 }
+
+.brand-logo{
+  padding: .5rem 0;
+  text-align: center;
+}
+.dark-bg3{background-color: #151515;}
 
 .contact ul {
   list-style: none;
