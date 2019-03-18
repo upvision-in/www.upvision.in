@@ -63,29 +63,30 @@
 
 
     // Display Window Size (to identify Media Query dimensions)
-    function ShowWindowSizeForMediaQueryToFindTriggerWidth() {
-        var MEASUREMENTS_ID = 'measurements';
-        $("body").append('<div id="'+MEASUREMENTS_ID+'"></div>');
-        var measurementObj = $("#"+MEASUREMENTS_ID);
-        measurementObj.css({
-            'position': 'fixed',
-            'bottom': '0',
-            'right': '0',
-            'background-color': 'black',
-            'color': 'white',
-            'padding': '8px',
-            'font-size': '12px',
-            'opacity': '0.66'
-        });
-        var getDimensions = function(){
-            return $(window).width() + ' (' + $(document).width() + ') x ' + $(window).height() + ' (' + $(document).height() + ')';
-        };
-        measurementObj.text(getDimensions());
-        $(window).on("resize", function(){
+    /*
+        function ShowWindowSizeForMediaQueryToFindTriggerWidth() {
+            var MEASUREMENTS_ID = 'measurements';
+            $("body").append('<div id="'+MEASUREMENTS_ID+'"></div>');
+            var measurementObj = $("#"+MEASUREMENTS_ID);
+            measurementObj.css({
+                'position': 'fixed',
+                'bottom': '0',
+                'right': '0',
+                'background-color': 'black',
+                'color': 'white',
+                'padding': '8px',
+                'font-size': '12px',
+                'opacity': '0.66'
+            });
+            var getDimensions = function(){
+                return $(window).width() + ' (' + $(document).width() + ') x ' + $(window).height() + ' (' + $(document).height() + ')';
+            };
             measurementObj.text(getDimensions());
-        });
-    }
-
+            $(window).on("resize", function(){
+                measurementObj.text(getDimensions());
+            });
+        }
+    */
     /*Footer navbar click event //////////////////////////////
 
     function FooterNavCollapsToggler() {

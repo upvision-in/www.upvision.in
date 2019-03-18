@@ -2,5 +2,5 @@ _site
 .sass-cache
 .jekyll-metadata
 .dockerignore
-/assets/css/upvision.scss
-/assets/css/upvision.css.map
+assets/css/upvision.scss
+assets/css/upvision.css.map

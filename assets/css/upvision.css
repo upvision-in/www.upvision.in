@@ -95,6 +95,7 @@ body {
 }
 
 .navbar .navbar-nav > .nav-item {
+  margin: 0 0.5rem;
   padding: 0.375rem 0;
 }
 
@@ -468,7 +469,14 @@ footer .footer-nav li {
 }
 
 footer .footer-nav li .logo, footer .footer-nav li .logo-statement {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   margin: 5px 20px;
+}
+
+footer .footer-nav li .logo a, footer .footer-nav li .logo-statement a {
+  margin-right: 5px;
 }
 
 footer .footer-nav li .logo p, footer .footer-nav li .logo-statement p {
