@@ -233,14 +233,13 @@ main {
 }
 
 
-/* Footer All Links 
+ 
 footer {
-   
+/* Footer All Links   
    .all-links { 
     background-color: #2e2e2e; padding:30px 0 30px 0; 
-    
-}
-.footer-nav{
+    }
+    .footer-nav{
     margin: auto; padding: 0; max-width: 1024px;
     >li:first-child{
         margin-right: 100px; margin-left: 50px;
@@ -623,6 +622,18 @@ footer {
     margin: 0.2%;
     }
   }
+
+/*******************************************/
+/**********        Focus         ***********/       
+/*******************************************/
+
+ul.checklist { list-style: outside none none; padding: 0; }
+ul.checklist li:first-child { margin-top: 0; }
+ul.checklist li { text-decoration: none; position: relative; margin: 1.25em 0 0 0; padding: 0 0 0 2.25em; line-height: 28px; }
+ul.checklist li:before { display: inline-block; position: absolute; top: 0; left: 0; font-family: FontAwesome; font-style: normal; font-weight: normal; text-align: center; text-transform: none !important; line-height: 24px; height: 26px; width: 26px; padding: 2px; color: #ec0044; content: "\f00c"; background: rgba(0, 0, 0, 0.1); border-radius: 50%; }
+ul.checklist li:hover { cursor: pointer; }
+ul.checklist li:hover:before { border: 2px solid rgb(206, 159, 82); background: rgba(0, 0, 0, 0.05); padding: 0; -webkit-transition: background 0.2s, color 0.2s; -moz-transition: background 0.2s, color 0.2s; -o-transition: background 0.2s, color 0.2s; transition: background 0.2s, color 0.2s; -webkit-transform: scale(1.1); -moz-transform: scale(1.1); -ms-transform: scale(1.1); -o-transform: scale(1.1); transform: scale(1.1); }
+
 
 
 

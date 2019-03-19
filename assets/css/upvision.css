@@ -382,8 +382,88 @@ main {
 /****************************************/
 /*****            Footer            *****/
 /****************************************/
+.logo {
+  text-align: right;
+  margin: 5px 20px;
+}
+
 footer {
-  /* Footer All Links */
+  /* Footer All Links   
+   .all-links { 
+    background-color: #2e2e2e; padding:30px 0 30px 0; 
+    }
+    .footer-nav{
+    margin: auto; padding: 0; max-width: 1024px;
+    >li:first-child{
+        margin-right: 100px; margin-left: 50px;
+        @include md{
+            margin: 0 0 25px 0;
+        }
+    }
+    >li:last-child{
+        margin-left: 50px;
+    }
+    li{
+        width: 35%;
+        display: inline-block; 
+        vertical-align: top;
+        @include md{
+            width: 100%;
+            display: block;
+            text-align: center;
+            margin: 0;
+        }
+        .logo , .logo-statement{
+            display: inline-flex;
+            margin: 5px 20px;
+            a{
+                margin-right: 5px;
+            }
+            p{
+                color: #fff; font-size: 14px; font-weight: lighter; text-justify: auto;
+            }
+        }
+        .logo-statement{
+            @include md{ display: none;}
+        }
+        .click-head{
+            margin-top: .5rem;
+            color: #fab734; font-weight: 500;
+            @include md{
+                width: 200px ;
+                margin: auto;
+                padding: 20px 0 ;
+                text-align: center;
+                border-top: #42a5f5 solid 1px;
+            }
+        }
+        .internal-link{ 
+            margin-top: 20px; font-size: 100%; padding: 0;
+            @include md{
+                text-align: center;
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            li{
+                width: 100%;
+                display: block;
+                text-align: left; margin-bottom: 5px;
+                animation: fadeInDown 300ms linear 300ms both;
+                @include md{
+                    border: none;
+                    text-align: center
+                }
+                a{ 
+                color: #fff; font-size: 14px; font-weight: lighter;
+                }
+                a:hover{
+                color: #87d5e9;
+                }
+            }
+        }
+    }
+}
+*/
   /* Footer contact bar*/
   /*  .foot-bar { 
         padding: 0.75rem 0;
@@ -419,127 +499,6 @@ footer {
   /* Footer Summary */
   /*Scroll to top flooter*/
   /*Get a quote flooter*/
-}
-
-footer .all-links {
-  background-color: #2e2e2e;
-  padding: 30px 0 30px 0;
-}
-
-footer .footer-nav {
-  margin: auto;
-  padding: 0;
-  max-width: 1024px;
-}
-
-footer .footer-nav > li:first-child {
-  margin-right: 100px;
-  margin-left: 50px;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav > li:first-child {
-    margin: 0 0 25px 0;
-  }
-}
-
-footer .footer-nav > li:last-child {
-  margin-left: 50px;
-}
-
-footer .footer-nav li {
-  width: 35%;
-  display: inline-block;
-  vertical-align: top;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav li {
-    width: 100%;
-    display: block;
-    text-align: center;
-    margin: 0;
-  }
-}
-
-footer .footer-nav li .logo, footer .footer-nav li .logo-statement {
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  margin: 5px 20px;
-}
-
-footer .footer-nav li .logo a, footer .footer-nav li .logo-statement a {
-  margin-right: 5px;
-}
-
-footer .footer-nav li .logo p, footer .footer-nav li .logo-statement p {
-  color: #fff;
-  font-size: 14px;
-  font-weight: lighter;
-  text-justify: auto;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav li .logo-statement {
-    display: none;
-  }
-}
-
-footer .footer-nav li .click-head {
-  margin-top: .5rem;
-  color: #fab734;
-  font-weight: 500;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav li .click-head {
-    width: 200px;
-    margin: auto;
-    padding: 20px 0;
-    text-align: center;
-    border-top: #42a5f5 solid 1px;
-  }
-}
-
-footer .footer-nav li .internal-link {
-  margin-top: 20px;
-  font-size: 100%;
-  padding: 0;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav li .internal-link {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-}
-
-footer .footer-nav li .internal-link li {
-  width: 100%;
-  display: block;
-  text-align: left;
-  margin-bottom: 5px;
-  -webkit-animation: fadeInDown 300ms linear 300ms both;
-          animation: fadeInDown 300ms linear 300ms both;
-}
-
-@media (max-width: 992px) {
-  footer .footer-nav li .internal-link li {
-    border: none;
-    text-align: center;
-  }
-}
-
-footer .footer-nav li .internal-link li a {
-  color: #fff;
-  font-size: 14px;
-  font-weight: lighter;
-}
-
-footer .footer-nav li .internal-link li a:hover {
-  color: #87d5e9;
 }
 
 footer .copyright {
@@ -1085,6 +1044,60 @@ footer .quote-icon-effect:hover:after {
     max-width: 24.1%;
     margin: 0.2%;
   }
+}
+
+/*******************************************/
+/**********        Focus         ***********/
+/*******************************************/
+ul.checklist {
+  list-style: outside none none;
+  padding: 0;
+}
+
+ul.checklist li:first-child {
+  margin-top: 0;
+}
+
+ul.checklist li {
+  text-decoration: none;
+  position: relative;
+  margin: 1.25em 0 0 0;
+  padding: 0 0 0 2.25em;
+  line-height: 28px;
+}
+
+ul.checklist li:before {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-align: center;
+  text-transform: none !important;
+  line-height: 24px;
+  height: 26px;
+  width: 26px;
+  padding: 2px;
+  color: #ec0044;
+  content: "\f00c";
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+
+ul.checklist li:hover {
+  cursor: pointer;
+}
+
+ul.checklist li:hover:before {
+  border: 2px solid #ce9f52;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0;
+  -webkit-transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s;
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 /******************************************/
