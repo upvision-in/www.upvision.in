@@ -525,6 +525,15 @@ footer .cr-text p {
   font-size: .8rem;
 }
 
+@media (max-width: 768px) {
+  footer .row {
+    text-align: center !important;
+  }
+  footer .row .logo {
+    text-align: center !important;
+  }
+}
+
 footer .footer-summary {
   background-color: #151515;
 }

@@ -356,7 +356,14 @@ footer {
             font-size: .8rem;
         }
     }
-
+    @media (max-width: 768px) {
+        .row{
+            text-align:center !important;
+            .logo{
+                text-align:center !important;
+            }
+        }
+    }
     /* Footer Summary */
     .footer-summary { 
         background-color: #151515; 
@@ -643,6 +650,7 @@ ul.checklist li:hover:before { border: 2px solid rgb(206, 159, 82); background: 
         padding: 20px 0;
     }
 }
+
 @media screen and (max-width: 767px) {
     #services{
         section{
