@@ -348,14 +348,12 @@ footer {
     .logo{
         font-size: .8rem;
         text-align: right;
-        margin: 5px 0px;
         p{vertical-align: top;}
     }
     .cr-text{
-        margin-bottom: 5px;
         p{
+            line-height: 1.5rem;
             font-size: .8rem;
-            margin: 5px 0 0;   
         }
     }
 
@@ -640,12 +638,23 @@ ul.checklist li:before { display: inline-block; position: absolute; top: 0; left
 ul.checklist li:hover { cursor: pointer; }
 ul.checklist li:hover:before { border: 2px solid rgb(206, 159, 82); background: rgba(0, 0, 0, 0.05); padding: 0; -webkit-transition: background 0.2s, color 0.2s; -moz-transition: background 0.2s, color 0.2s; -o-transition: background 0.2s, color 0.2s; transition: background 0.2s, color 0.2s; -webkit-transform: scale(1.1); -moz-transform: scale(1.1); -ms-transform: scale(1.1); -o-transform: scale(1.1); transform: scale(1.1); }
 
-.services{
+#services{
     section{
         padding: 20px 0;
     }
 }
-
+@media screen and (max-width: 767px) {
+    #services{
+        section{
+            div.row{
+                text-align: center; padding-top: 5px;
+                ul{
+                    display: inline-block; text-align: left;
+                } 
+            }
+        }
+    } 
+}
 
 /******************************************/
 /*****            Controls            *****/
