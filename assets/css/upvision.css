@@ -521,9 +521,13 @@ footer .logo p {
   vertical-align: top;
 }
 
+footer .cr-text {
+  margin-bottom: 5px;
+}
+
 footer .cr-text p {
   font-size: .8rem;
-  margin: 10px 0 0;
+  margin: 5px 0 0;
 }
 
 footer .footer-summary {
@@ -1110,6 +1114,10 @@ ul.checklist li:hover:before {
   transform: scale(1.1);
 }
 
+.services section {
+  padding: 20px 0;
+}
+
 /******************************************/
 /*****            Controls            *****/
 /******************************************/
@@ -1265,12 +1273,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .display-4 {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
 }
 
 @media (min-width: 576px) {
   .display-4 {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
   }
 }
 
