@@ -382,11 +382,6 @@ main {
 /****************************************/
 /*****            Footer            *****/
 /****************************************/
-.logo {
-  text-align: right;
-  margin: 5px 20px;
-}
-
 footer {
   /* Footer All Links   
    .all-links { 
@@ -514,6 +509,21 @@ footer .copyright span {
   word-spacing: 3px;
   line-height: 1;
   font-weight: 100;
+}
+
+footer .logo {
+  font-size: .8rem;
+  text-align: right;
+  margin: 5px 0px;
+}
+
+footer .logo p {
+  vertical-align: top;
+}
+
+footer .cr-text p {
+  font-size: .8rem;
+  margin: 10px 0 0;
 }
 
 footer .footer-summary {
