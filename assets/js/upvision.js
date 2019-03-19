@@ -111,7 +111,7 @@
         ScrollToTop();
         VerticalAlignNavbarTogglerButton();
         RegisterNavbarTogglerButtonClick();
-        ShowWindowSizeForMediaQueryToFindTriggerWidth();
+        //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
         initMap();
     }
