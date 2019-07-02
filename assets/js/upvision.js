@@ -2,6 +2,10 @@
     var $document, $window;
     var $header, $footer, $main, $scrollToTop, $navbarTogglerButton;
 
+
+
+
+
     function initVariables() {
         $document = $(document);
         $window = $(window);
@@ -114,6 +118,8 @@
         //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
         initMap();
+        slicklist.initialize();
+
     }
 
     $(function() {

@@ -5,3 +5,4 @@ _site
 assets/css/upvision.scss
 assets/css/upvision.css.map
 Gemfile.lock
+*.lock

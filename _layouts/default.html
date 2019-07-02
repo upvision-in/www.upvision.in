@@ -18,6 +18,7 @@
       <link rel="stylesheet" href="assets/libs/font-awesome/css/font-awesome.min.css">
       <link rel="stylesheet" href="assets/libs/animate/animate.min.css">
       <link rel="stylesheet" href="assets/css/upvision.css">
+      <link rel="stylesheet" href="assets/libs/slick/slick.min.css" />
       
   </head>
   <body>
@@ -28,12 +29,17 @@
     </main>
 
     {% include footer.html %}
-    
+    <script type="text/javascript">
+        $(function () {
+            main.initialize();
+        });
+    </script>
     <script src="assets/libs/jquery/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="assets/libs/bootstrap/tether.min.js"></script>
     <script src="assets/libs/bootstrap/bootstrap.min.js"></script>
-    
+    <script src="assets/libs/slick/slick.min.js"></script>  <!-- For technologies carousel-->
+    <script type="application/javascript" src="assets/js/slicklist.js"></script>
     <script type="application/javascript" src="assets/js/upvision.js"></script>
     
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmKqBa5q26PvvNFe4APTKIj9tN4UfMc_c&callback=initMap"></script>
