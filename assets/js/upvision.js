@@ -117,8 +117,9 @@
         RegisterNavbarTogglerButtonClick();
         //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
-        initMap();
         slicklist.initialize();
+        initMap();
+       
 
     }
 
