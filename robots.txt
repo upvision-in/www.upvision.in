@@ -1,0 +1,3 @@
+Sitemap: http://upvision.in/sitemap.xml
+User-agent: *
+Disallow: /assets

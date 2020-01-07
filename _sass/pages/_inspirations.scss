@@ -1,0 +1,49 @@
+// -----------------------------------------------------------------------------
+// This file contains styles that are specific to the inspiration areas.
+// -----------------------------------------------------------------------------
+
+.inspiration-customer-success { height: 475px; background: url("../images/pages/inspiration-customer-success.png") no-repeat 50% 100%; }
+.inspiration-teamwork { height: 475px; background: url("../images/pages/inspiration-teamwork.png") no-repeat 50% 100%; }
+.inspiration-leadership { height: 425px; background: url("../images/pages/inspiration-leadership.png") no-repeat 50% 100%; }
+.inspiration-partnership { height: 575px; background: url("../images/pages/inspiration-partnership.png") no-repeat 50% 100%; }
+
+
+@media (max-width: 459px) {
+  .inspiration-customer-success,
+  .inspiration-teamwork,
+  .inspiration-leadership,
+  .inspiration-partnership { background-image: none !important; }
+}
+
+@media (min-width: 460px) {
+  .inspiration-customer-success { height: 425px; }
+  .inspiration-leadership { height: 550px; }
+}
+
+@media (min-width: 540px) {
+  .inspiration-customer-success { height: 375px; }
+  .inspiration-leadership { height: 500px; }
+  .inspiration-partnership { height: 500px; }
+}
+
+@media (min-width: 576px) {
+  .inspiration-customer-success { height: 350px; }
+  .inspiration-leadership { height: 500px; }
+}
+
+@media (min-width: 768px) {
+  .inspiration-customer-success { height: 333px; }
+  .inspiration-leadership { height: 425px; }
+  .inspiration-partnership { height: 450px; }
+}
+
+@media (min-width: 1024px) {
+  .inspiration-partnership { height: 400px; }
+}
+
+@media (min-width: 1750px) {
+  .inspiration-customer-success { height: 175px; background-position: 90% 0; }
+  .inspiration-teamwork { height: 300px; background-position: 90% 0; }
+  .inspiration-leadership { height: 225px; background-position: 90% 0; }
+  .inspiration-partnership { height: 200px; background-position: 90% 0; }
+}

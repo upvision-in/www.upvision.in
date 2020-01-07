@@ -1,0 +1,21 @@
+// -----------------------------------------------------------------------------
+// This file contains styles that are specific to the services page.
+// -----------------------------------------------------------------------------
+
+@media screen and (max-width: 767px) {
+  #services section div.row {
+    text-align: center;
+    padding-top: 5px;
+  }
+  #services section div.row ul {
+    display: inline-block;
+    text-align: left;
+  }
+}
+
+.service-icon {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  top: -5px;
+}

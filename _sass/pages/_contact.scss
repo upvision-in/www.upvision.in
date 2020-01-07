@@ -1,0 +1,51 @@
+// -----------------------------------------------------------------------------
+// This file contains styles that are specific to the contact page.
+// -----------------------------------------------------------------------------
+
+.sales-contact {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #787878;
+    line-height: 2rem;
+  }
+  
+  .contact-form {
+    margin: auto;
+  }
+  
+  .contact-form .alert ul {
+    margin-bottom: 0;
+  }
+  
+  .contact-form .g-recaptcha {
+    margin-left: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .contact-form .submit-enquiry {
+    text-align: center;
+  }
+  
+  .contact-form .privacy-message {
+    font-size: 0.75rem;
+    padding: 0;
+    text-align: center;
+  }
+  
+  @media (min-width: 540px) {
+    .contact-form .g-recaptcha {
+      margin-left: 0;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .contact-form .g-recaptcha {
+      margin-bottom: 0;
+    }
+    .contact-form .submit-enquiry {
+      text-align: right;
+    }
+    .contact-form .privacy-message {
+      text-align: right;
+    }
+  }

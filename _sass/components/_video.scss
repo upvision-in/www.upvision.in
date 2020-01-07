@@ -1,0 +1,87 @@
+.video-wrapper {
+    position: relative;
+    background: url('../images/background/dark.jpg') $background-dark no-repeat center center scroll;
+    //background-color: $background-dark;
+    height: 100vh;
+    min-height: 25rem;
+    width: 100%;
+    overflow: hidden;
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: black;
+        opacity: 0.6;
+        z-index: 1;
+    }
+    
+    video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: 0;
+        -ms-transform: translateX(-50%) translateY(-50%);
+        -moz-transform: translateX(-50%) translateY(-50%);
+        -webkit-transform: translateX(-50%) translateY(-50%);
+        transform: translateX(-50%) translateY(-50%);
+    }
+
+    .container, .container-fluid {
+        position: relative;
+        z-index: 2;
+    }
+}
+
+@media (pointer: coarse) and (hover: none) {
+    .video-wrapper {
+        background: url('../videos1/background.jpg') $background-dark no-repeat center center scroll;
+
+        video {
+            display: none;
+        }
+    }
+}
+
+// .video-wrapper {
+//     position: relative;
+//     width: 100%; /* NOTE: 100% * numVideos */
+//     height: 100%;
+//     z-index: 0;
+// }
+
+// .screen {
+//     overflow: hidden;
+//     position: relative;
+//     height: 100%;
+//     width: 100%; /*  NOTE: 100%/numVideos  */
+//     float: left;
+// }
+
+// .screen video {
+//     position: absolute;
+//     left: 50%;
+//     top: 50%;
+//     transform: translate(-50%, -50%);
+// }
+
+// .big-image, .screen video {
+//     min-width: 100%;
+//     min-height: 100%;
+//     height: auto;
+//     width: auto;
+// }
+
+// audio, canvas, video {
+//     display: inline-block;
+// }
+
+// video {
+//     object-fit: contain;
+// }

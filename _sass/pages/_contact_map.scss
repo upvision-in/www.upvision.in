@@ -1,0 +1,203 @@
+// -----------------------------------------------------------------------------
+// This file contains styles that are specific to the contact page map area.
+// -----------------------------------------------------------------------------
+
+.gmap-area {
+    background: url("../images/pages/map.jpg") no-repeat 0 0;
+    background-size: cover;
+  }
+  
+  .gmap-area .gmap {
+    border: 10px solid #f6f5f0;
+    border-radius: 2%;
+    height: 550px;
+    width: 100%;
+    -webkit-box-shadow: 0 0 3px 3px #e7e4dc;
+            box-shadow: 0 0 3px 3px #e7e4dc;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+  }
+  
+  .gmap-area .gmap iframe {
+    border-radius: 50%;
+    height: 530px;
+    width: 500px;
+  }
+  
+  .gmap-area .map-content {
+    margin-left: 0;
+  }
+  
+  .gmap-area .map-content h2 {
+    text-align: center;
+  }
+  
+  .gmap-area .map-content ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .gmap-area .map-content ul li {
+    text-decoration: none;
+    margin: 1.25rem 0 0 0;
+    padding: 0 0 0 3rem;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.75rem;
+  }
+  
+  .gmap-area .map-content ul li:before {
+    border-radius: 100%;
+    background-color: #4e4e4e;
+    color: #fff;
+    display: inline-block;
+    height: 1.75em;
+    width: 1.75rem;
+    left: 0;
+    position: absolute;
+    text-align: center;
+    font-family: FontAwesome;
+    font-size: 1rem;
+    line-height: 1.75rem;
+  }
+  
+  .gmap-area .map-content ul li a {
+    color: #4e4e4e;
+  }
+  
+  .gmap-area .map-content .badge {
+    font-size: 50%;
+    font-weight: 400;
+    vertical-align: middle;
+    padding: 0.35rem;
+    margin-left: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .gmap-area .map-content h2 {
+      text-align: left;
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .gmap-area .map-content .badge {
+      margin-left: 0;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .gmap-area .map-content .badge {
+      margin-left: 1rem;
+    }
+  }
+  
+  #mapInfoWindowContent {
+    background-color: white;
+  }
+  
+  #mapInfoWindowContent .title {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 40px 8px 6px;
+    margin: 0;
+    background-color: #c52d2f;
+    color: white;
+    border-radius: 2px 2px 0 0;
+    white-space: nowrap;
+  }
+  
+  #mapInfoWindowContent .content {
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 300;
+    max-height: 140px;
+    color: #5b5b5b;
+    margin-right: 1px;
+    padding: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  .box-shadow {
+    width: 321px !important;
+    height: 119px !important;
+  }
+  
+  #mapInfoWindowContent .content .description {
+    display: inline-block;
+    width: 220px;
+    padding: 4px 7px 4px 0;
+    line-height: 18px;
+  }
+  
+  #mapInfoWindowContent .content .navigate-separator {
+    background: rgba(0, 0, 0, 0.125) repeat scroll 0 0;
+    display: inline-block;
+    height: 43px;
+    vertical-align: top;
+    width: 2px;
+  }
+  
+  .gm-style a, #mapInfoWindowContent .content a {
+    color: #3a84df;
+    text-decoration: none;
+    border: 0 !important;
+  }
+  
+  .gm-style a:hover, #mapInfoWindowContent .content a:hover {
+    text-decoration: underline;
+    border: 0 !important;
+  }
+  
+  #mapInfoWindowContent .content .navigate {
+    display: inline-block;
+    height: 43px;
+    padding: 0 7px 0 7px;
+    vertical-align: top;
+  }
+  
+  #mapInfoWindowContent .content .navigate-link {
+    display: block;
+  }
+  
+  #mapInfoWindowContent .content .icon {
+    background-image: url("../../assets/images/pages/map.controls.png");
+    background-size: 70px 210px;
+  }
+  
+  #mapInfoWindowContent .content .navigate-icon {
+    background-position: 0px 0px;
+    border: 0;
+    width: 22px;
+    height: 22px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  
+  #mapInfoWindowContent .content .navigate:hover .navigate-icon {
+    background-position: 48px 0;
+  }
+  
+  #mapInfoWindowContent .content .navigate-text {
+    margin-top: 5px;
+    max-width: 60px;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  #mapInfoWindowContent .content .bottom-actions {
+    padding: 10px 0 2px 0;
+  }
+  
+  #mapInfoWindowContent .content .bottom-actions .google-maps-link {
+    display: inline-block;
+  }
+  
+  .gm-ui-hover-effect img {
+    position: relative;
+    margin: 0 !important;
+    margin-bottom: 10px !important;
+  }

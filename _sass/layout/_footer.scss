@@ -1,0 +1,127 @@
+// -----------------------------------------------------------------------------
+// This file contains all styles related to the footer of the site/application.
+// -----------------------------------------------------------------------------
+
+footer .copyright {
+    margin: 0;
+    width: 100%;
+  }
+  
+  footer .copyright span {
+    font-size: 10px;
+    color: #a6a9b3;
+    display: block;
+    text-align: center;
+    word-spacing: 3px;
+    line-height: 1;
+    font-weight: 100;
+  }
+  
+  footer .logo {
+    font-size: .8rem;
+    text-align: right;
+  }
+  
+  footer .logo p {
+    vertical-align: top;
+  }
+  
+  footer .cr-text p {
+    line-height: 1.5rem;
+    font-size: .8rem;
+  }
+  
+  @media (max-width: 768px) {
+    footer .row {
+      text-align: center !important;
+    }
+    footer .row .logo {
+      text-align: center !important;
+    }
+  }
+  
+  footer .footer-summary {
+    background-color: #151515;
+  }
+  
+  footer .footer-summary::before {
+    background: rgba(0, 0, 0, 0) -webkit-gradient(linear, left top, right top, from(#c52d2f), color-stop(50%, #42a5f5), to(#fab834)) repeat scroll 0 0;
+    background: rgba(0, 0, 0, 0) linear-gradient(to right, #c52d2f 0%, #42a5f5 50%, #fab834 100%) repeat scroll 0 0;
+    content: "";
+    display: block;
+    height: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  footer #ScrollToTop {
+    z-index: 1;
+    cursor: pointer;
+    position: fixed;
+    bottom: 23px;
+    right: 23px;
+    display: inherit;
+    overflow: hidden;
+    color: #fff;
+  }
+  
+  @media (max-width: 992px) {
+    footer #ScrollToTop {
+      display: none !important;
+    }
+  }
+  
+  footer .quote-icon-effect {
+    text-align: center;
+    color: #000;
+    background: #42a5f5;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    -webkit-transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s;
+    z-index: 3;
+    cursor: pointer;
+    position: fixed;
+    bottom: 90px;
+    right: 16px;
+  }
+  
+  footer .quote-icon-effect:after {
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    content: '';
+    -webkit-box-sizing: content-box;
+            box-sizing: content-box;
+    top: -2px;
+    left: -2px;
+    padding: 2px;
+    background: #000;
+    z-index: -1;
+    -webkit-transition: opacity 0.3s, -webkit-transform 0.2s;
+    transition: opacity 0.3s, -webkit-transform 0.2s;
+    transition: transform 0.2s, opacity 0.3s;
+    transition: transform 0.2s, opacity 0.3s, -webkit-transform 0.2s;
+    -webkit-transform: scale(1.3);
+            transform: scale(1.3);
+    opacity: 0;
+  }
+  
+  footer .quote-icon-effect:before {
+    font-size: 16px;
+    line-height: 50px;
+    display: block;
+  }
+  
+  footer .quote-icon-effect:hover {
+    color: #fff;
+  }
+  
+  footer .quote-icon-effect:hover:after {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+    opacity: 1;
+  }
