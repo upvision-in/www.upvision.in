@@ -1,5 +1,10 @@
 ﻿var slicklist = (function () {
     var onPageLoad_Home_Quotes = function () {
+        // so we can support javacript fallback to basic html...
+        $('.slick-list-quotes .no-javascript').each(function (index, element) {
+            $(this).removeClass('no-javascript');
+        });
+
         $('.slick-list-quotes').slick({
             infinite: true,
             slidesToShow: 1,
@@ -43,6 +48,11 @@
     }
 
     var onPageLoad_Services_Skills = function () {
+        // so we can support javacript fallback to basic html...
+        $('.slick-list-skills').each(function (index, element) {
+            $(this).removeClass('no-javascript');
+        });
+
         $('.slick-list-skills').slick({
             infinite: true,
             slidesToShow: 9,

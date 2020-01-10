@@ -7,6 +7,9 @@ var $grid = $('.grid').isotope({
     }
 });
 
+// so we can support javacript fallback to basic html...
+$grid.removeClass('no-javasript');
+
 // bind filter button click
 $('#filters').on('click', 'button', function () {
     var filterValue = $(this).attr('data-filter');

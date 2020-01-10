@@ -202,6 +202,14 @@
             }
         }
     }
+
+    &.no-javascript {
+        overflow: auto;
+
+        .grid-item {
+            float: left;
+        }
+    }
 }
 
 /**********      Home Page - Why UpVision      ***********/
@@ -241,6 +249,10 @@
             text-align: right;
             text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
         }
+    }
+
+    .no-javascript {
+        display: none;
     }
 }
 

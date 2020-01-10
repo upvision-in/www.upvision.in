@@ -142,12 +142,6 @@
     }
     */
 
-    function AddCheckIconToChecklists() {
-        $( "ul.checklist li" ).each( function (index, element) {
-            $( this ).prepend('<i class="fa fa-check"></i>');
-        });
-    }
-
     function ShuffleLettersInBanner() {
         var isShufflBannerPresent = $("#shuffleTextId").length > 0;
 
@@ -183,7 +177,6 @@
         VerticalAlignNavbarTogglerButton();
         RegisterNavbarTogglerButtonClick();
         RegisterWowJs();
-        AddCheckIconToChecklists();
         ShuffleLettersInBanner();
         //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
