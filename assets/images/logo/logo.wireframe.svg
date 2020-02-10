@@ -1,0 +1,12 @@
+<svg height="512" width="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="59.71,68.67 255.75,408.23 " style="fill:none;stroke:black;stroke-linejoin:round;stroke-linecap:round;stroke-width:16;" />
+    <polyline points="229.19,158.22 177.48,68.67 452.25,68.67 " style="fill:none;stroke-linejoin:round;stroke:black;stroke-linecap:round;stroke-width:16;" />
+    <polyline points="263.19,217.11 314.71,306.35 452.25,68.67 " style="fill:none;stroke-linejoin:round;stroke:black;stroke-linecap:round;stroke-width:16;" />
+</svg>
+
+
+<!-- <svg height="512" width="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="59.71,68.67 255.75,408.23" style="fill:none;stroke:rgb(197,45,47);stroke-linejoin:round;stroke-linecap:round;stroke-width:16;" />
+    <polyline points="199.74,175.22 138.23,68.67 452.25,68.67" style="fill:none;stroke:rgb(68,126,242);stroke-linejoin:round;stroke-linecap:round;stroke-width:16;" />
+    <polyline points="233.74,234.11 295.06,340.3 452.25,68.67" style="fill:none;stroke:rgb(250,183,52);stroke-linejoin:round;stroke-linecap:round;stroke-width:16;" />
+</svg> -->
