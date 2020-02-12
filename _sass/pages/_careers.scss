@@ -1,0 +1,61 @@
+ 
+ .card-deck.careers
+ {
+    .card {
+        background-color: transparent;
+        border: none;
+        padding: 1rem;
+        .card-img-top{
+            width: 48%;
+            margin: 0 auto;
+        }
+        h3{
+            font-size: 1.25rem;
+            // padding-bottom: 12px;
+            // border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+    }
+
+  .card-block {      
+    text-align: center;
+        i {
+            color: $brand-color-green;
+            vertical-align: middle;
+        }
+        .card-text{
+            text-align: justify;
+        }
+    }
+}
+
+.opennings {
+    .card {
+        margin-top: 24px;
+        .card-header {
+            padding: 0;
+            border-bottom: 0 none;
+
+            a:hover, a:active, a:focus {
+                background-color: #1f1f20;
+                color: #fff;
+            }
+            a {
+                text-decoration: none;
+                padding: .75rem 1.25rem;
+                display: block;
+                color: #222;
+                border-radius: .25rem .25rem 0 0;
+                // i {
+                //     width: 62px;
+                //     line-height: 62px;
+                //     font-size: 20px;
+                //     margin-top: -10px;
+                //     text-align: center;
+                //     background: #c9c9c9;
+                //     margin-right: -15px;
+                // }
+            }
+        }
+    }
+    
+}
