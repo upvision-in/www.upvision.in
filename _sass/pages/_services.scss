@@ -56,3 +56,23 @@
     }
   }
 }
+.get-in-touch {
+    background: url(../images/pages/bg-abstract-triangles.png) #0D173F 50% 50% no-repeat;
+    position: relative;
+    color: white;
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: black;
+        opacity: 0.6;
+        z-index: 1;
+    }
+    .container {
+      position: relative;
+      z-index: 2;
+    }
+  }

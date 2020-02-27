@@ -20,12 +20,15 @@ footer .copyright {
   footer .logo {
     font-size: .8rem;
     text-align: right;
-  }
+
+    img {
+      max-height: 16px;
+    }
   
-  footer .logo p {
-    vertical-align: top;
+    p {
+      vertical-align: top;
+    }
   }
-  
   footer .cr-text p {
     line-height: 1.5rem;
     font-size: .8rem;
