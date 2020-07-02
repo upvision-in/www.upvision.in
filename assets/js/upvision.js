@@ -50,9 +50,9 @@
 
     function StickyMenu() {
         if ($("#shuffleTextId").length > 0) {  // for homepage
-            $header.detach().insertAfter($('section.video-wrapper')).css({'opacity': '0', 'display': 'block'});
+            //$header.detach().insertAfter($('section.video-wrapper')).css({'opacity': '0', 'display': 'block'});
             $('header .top-bar').remove();
-            $navbar.addClass('shrinked fixed-top');
+            $navbar.addClass('shrinked').css({ 'position': 'absolute', 'left': 0, 'right': 0, 'bottom': 0, 'z-index': 999});
         }
 
         $window.scroll(function () {
@@ -62,10 +62,10 @@
                 heightToUseForEffect = $('section.video-wrapper').height() - 50;
 
                 if ($(this).scrollTop() >= heightToUseForEffect) {
-                    $header.css('opacity', '1');
+                    $navbar.css({ 'position': 'fixed', 'top': 0, 'bottom' : 'auto' });
                 }
                 else {
-                    $header.css('opacity', '0');
+                    $navbar.css({ 'position': 'absolute', 'bottom': 0, 'top' : 'auto' });
                 }
             }
             else {

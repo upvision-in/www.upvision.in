@@ -16,15 +16,16 @@
 
 .banner-info {
     img {
-        height: 100px;
+        height: 86px;
         position: relative;
-        left: -32px;
     }
 
     h1 {
         letter-spacing: 2px;
         font-weight: 300;
-        line-height: 4.5rem;
+        line-height: 3rem;
+        font-size: 2em;
+        margin-top: 5vh;
     }
 
     .shuffleBanner {
@@ -54,7 +55,7 @@
         h1 {
             letter-spacing: 2px;
             font-weight: 300;
-            font-size: 3.5rem;
+            font-size: 2rem;
         }
 
         span {
