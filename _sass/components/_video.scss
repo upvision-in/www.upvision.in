@@ -6,6 +6,7 @@
     min-height: 25rem;
     width: 100%;
     overflow: hidden;
+    z-index: -3;
 
     .overlay {
         position: absolute;
@@ -15,7 +16,7 @@
         width: 100%;
         background-color: black;
         opacity: 0.6;
-        z-index: 1;
+        z-index: -1;
     }
     
     video {
@@ -26,7 +27,7 @@
         min-height: 100%;
         width: auto;
         height: auto;
-        z-index: 0;
+        z-index: -2;
         -ms-transform: translateX(-50%) translateY(-50%);
         -moz-transform: translateX(-50%) translateY(-50%);
         -webkit-transform: translateX(-50%) translateY(-50%);
@@ -35,7 +36,6 @@
 
     .container, .container-fluid {
         position: relative;
-        z-index: 2;
     }
 }
 
