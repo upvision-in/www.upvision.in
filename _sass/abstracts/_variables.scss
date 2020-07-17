@@ -8,9 +8,14 @@
 
 /// Regular font family
 /// @type List
-$text-font-default: 'Open Sans', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
-$text-font-heading: 'Josefin Sans', 'Century Gothic', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
-$text-font-heading-small: 'Roboto Slab', 'Georgia', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', serif !default;
+$text-font-default: 'Karla','Open Sans', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
+$text-font-heading: 'Karla','Josefin Sans', 'Century Gothic', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif !default;
+//$text-font-heading-small: 'Karla', 'Roboto Slab', 'Georgia', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', serif !default;
+
+$font-size-default: 16px;
+$font-size-3: 1.75em;
+$font-size-2: 2.25em;
+$font-size-1: 3em;
 
 
 /// Code (monospace) font family

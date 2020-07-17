@@ -16,23 +16,22 @@
 
 .banner-info {
     img {
-        height: 100px;
+        height: 86px;
         position: relative;
-        left: -32px;
     }
 
     h1 {
         letter-spacing: 2px;
         font-weight: 300;
-        font-size: 4rem;
-        line-height: 4.5rem;
+        line-height: 3rem;
+        font-size: 2em;
+        margin-top: 5vh;
     }
 
     .shuffleBanner {
         h1 {
             letter-spacing: 2px;
             font-weight: 300;
-            font-size: 3.5rem;
         }
 
         span {
@@ -45,6 +44,29 @@
     }
 }
 
+@media (min-width: 768px) {
+        img.homeLogo {
+        height: 100px;
+        position: relative;
+        left: -32px;
+    }
+
+    .shuffleBanner {
+        h1 {
+            letter-spacing: 2px;
+            font-weight: 300;
+            font-size: 2rem;
+        }
+
+        span {
+            font-weight: 500;
+            text-align: left;
+            width: 210px;
+            display: inline-block;
+            color: #fab734;
+        }
+    }
+}
 
 /**********      Home Page  - Domains     ***********/
 // #feature { background: #f2f2f2; padding-bottom: 40px; }
@@ -99,7 +121,7 @@
 // #home-services .services-wrap .pull-left { margin-right: 20px; }
 
 .btn-upvision.services {
-    font-size: 0.9rem;
+    //font-size: 0.9rem;
 }
 
 // .card-deck.services {
@@ -135,7 +157,7 @@
         top: 2px;
         margin-right: 8px;
 
-        font-family: $text-font-heading-small;
+        font-family: $text-font-default;
         font-size: 1.2rem;
         font-weight: 600;
     }
@@ -226,11 +248,10 @@
 .quotes {
     background: url(../images/slider/quote-bg.jpg) 50% 50% no-repeat;
     background-size: cover;
-    height: 450px;
 
     blockquote {
         p {
-            font-family: $text-font-heading-small;
+            font-family: $text-font-default;
             font-size: 1.25rem;
             letter-spacing: 1px;
             font-weight: 300;
@@ -248,6 +269,7 @@
             font-style: italic;
             text-align: right;
             text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
+            margin-right: 4px;
         }
     }
 
