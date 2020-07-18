@@ -51,8 +51,10 @@
     function StickyMenu() {
         if ($("#shuffleTextId").length > 0) {  // for homepage
             //$header.detach().insertAfter($('section.video-wrapper')).css({'opacity': '0', 'display': 'block'});
-            $('header .top-bar').remove();
-            $navbar.addClass('shrinked').css({ 'position': 'absolute', 'left': 0, 'right': 0, 'bottom': 0, 'z-index': 999});
+            $navbar.addClass('shrinked').css({ 'position': 'absolute', 'left': 0, 'right': 0, 'bottom': 0, 'z-index': 999 });
+        }
+        else {
+            $('header .top-bar').removeClass('d-none');
         }
 
         $window.scroll(function () {
@@ -62,10 +64,10 @@
                 heightToUseForEffect = $('section.video-wrapper').height() - 50;
 
                 if ($(this).scrollTop() >= heightToUseForEffect) {
-                    $navbar.css({ 'position': 'fixed', 'top': 0, 'bottom' : 'auto' });
+                    $navbar.css({ 'position': 'fixed', 'top': 0, 'bottom': 'auto' });
                 }
                 else {
-                    $navbar.css({ 'position': 'absolute', 'bottom': 0, 'top' : 'auto' });
+                    $navbar.css({ 'position': 'absolute', 'bottom': 0, 'top': 'auto' });
                 }
             }
             else {
@@ -147,9 +149,9 @@
 
         if (isShufflBannerPresent) {
             shuffleBanner.initialize({
-                "container" : "#shuffleTextId",
-                "interval"  : 5000,
-                "textArray" : $("#shuffleTextId").attr("data-text").split(',')
+                "container": "#shuffleTextId",
+                "interval": 5000,
+                "textArray": $("#shuffleTextId").attr("data-text").split(',')
             });
         }
 
