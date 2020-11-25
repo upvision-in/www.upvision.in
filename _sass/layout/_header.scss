@@ -10,7 +10,9 @@ header, header > nav {
 header > nav img {
   transition: opacity 0.25s ease-in;
 }
-
+nav.atbottom {
+    position: absolute; left: 0px; right: 0px; bottom: 0px; z-index: 999;
+}
 nav.shrinked {
   img {
     opacity: 0;

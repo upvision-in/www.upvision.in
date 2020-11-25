@@ -49,14 +49,6 @@
 
 
     function StickyMenu() {
-        if ($("#shuffleTextId").length > 0) {  // for homepage
-            //$header.detach().insertAfter($('section.video-wrapper')).css({'opacity': '0', 'display': 'block'});
-            $navbar.addClass('shrinked').css({ 'position': 'absolute', 'left': 0, 'right': 0, 'bottom': 0, 'z-index': 999 });
-        }
-        else {
-            $('header .top-bar').removeClass('d-none');
-        }
-
         $window.scroll(function () {
             var heightToUseForEffect = 30;
 
@@ -173,9 +165,9 @@
     }
 
     function initApplicationScripts() {
+        StickyMenu();
         EnableTooltipsApplicationWide();
         ScrollToTop();
-        StickyMenu();
         VerticalAlignNavbarTogglerButton();
         RegisterNavbarTogglerButtonClick();
         RegisterWowJs();
