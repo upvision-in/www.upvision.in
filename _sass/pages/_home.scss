@@ -226,7 +226,7 @@
     }
 
     &.no-javascript {
-        overflow: auto;
+        overflow: hidden;
 
         .grid-item {
             float: left;
