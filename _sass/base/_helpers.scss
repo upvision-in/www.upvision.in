@@ -53,3 +53,20 @@
   position: absolute;
   width: 1px;
 }
+
+
+.observed-holiday-arrow {
+  position: relative;
+  padding-left: 44px !important;
+
+  &::before {
+    content: '';
+    background: url('../../assets/images/arrow.png') no-repeat;
+    background-size: 40px 40px;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: -10px;
+    left: 6px;
+  }
+}
