@@ -18,6 +18,7 @@
             fade: true,
             speed: 500,
             cssEase: 'ease',
+            mobileFirst: true,
             responsive: [
                 {
                     breakpoint: 1025,
