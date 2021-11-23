@@ -10,40 +10,14 @@
             slidesToShow: 1,
             slidesToScroll: 1,
             centerPadding: "0",
-            variableWidth: false,
+            adaptiveHeight: true,
             autoplay: true,
             autoplaySpeed: 5000,
             arrows: true,
             centerMode: true,
             fade: true,
             speed: 500,
-            cssEase: 'ease',
-            responsive: [
-                {
-                    breakpoint: 1025,
-                    settings: {
-                        arrows: false,
-                        slidesToShow: 5,
-                        draggable: false
-                    }
-                },
-                {
-                    breakpoint: 769,
-                    settings: {
-                        arrows: false,
-                        slidesToShow: 3,
-                        draggable: false
-                    }
-                },
-                {
-                    breakpoint: 350,
-                    settings: {
-                        slidesToShow: 1,
-                        swipe: true,
-                        arrows: false,
-                        draggable: true
-                    }
-                }]
+            cssEase: 'ease'
         });
     }
 
