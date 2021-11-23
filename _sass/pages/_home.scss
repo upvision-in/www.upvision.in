@@ -280,10 +280,13 @@
 
 /**********      Home Page - Contact Info      ***********/
 .contact-info {
-    background: #fff url(../images/contact.png) no-repeat 90% 0;
     padding: 30px 0;
-    min-height: 223px;
-    height: 223px;
+
+    @media (min-width: 810px) {
+        background: #fff url(../images/contact.png) no-repeat 90% 0;
+        min-height: 223px;
+        height: 223px;
+    }
 
     .icon {
         float: left;
