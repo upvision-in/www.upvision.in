@@ -5,3 +5,4 @@ gem 'jekyll-seo-tag'
 gem 'scss_lint'
 gem "kramdown-parser-gfm"
 gem "wdm"
+gem "webrick", "~> 1.7"
