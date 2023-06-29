@@ -198,10 +198,10 @@
 
     function initMap() {
         try {
-            var centerPosition = { lat: 23.19203, lng: 72.61687 };
-            var myPosition = { lat: 23.19203, lng: 72.61687 };
-            var directionUrl = "https://www.google.com/maps/dir//UpVision+Software+Services+Private+Limited,+314,+Pramukh+Tangent,+Sargasan+Cross,+Road,+Sargasan,+Gandhinagar,+Gujarat+382421/@23.1920124,72.6146531,13z/data=!4m8!4m7!1m0!1m5!1m1!1s0x395c2b27a3201327:0x8f84528af4746fa5!2m2!1d72.6168418!2d23.1920124";
-            var largerMapUrl = "https://www.google.com/maps/place/UpVision+Software+Services+Private+Limited/@23.1920124,72.6157477,17z/data=!4m5!3m4!1s0x0:0x8f84528af4746fa5!8m2!3d23.1920124!4d72.6168418"
+            var centerPosition = { lat: 23.1761691, lng: 72.6263517 };
+            var myPosition = { lat: 23.1761691, lng: 72.6263517 };
+            var directionUrl = "https://www.google.com/maps/dir//UpVision+Software+Services+Private+Limited/@23.1761691,72.6263517,17z/data=!3m1!4b1!4m6!3m5!1s0x395c2b27a3201327:0x8f84528af4746fa5!8m2!3d23.1761642!4d72.6289266!16s%2Fg%2F11h764tzgt";
+            var largerMapUrl = "https://www.google.com/maps/place/UpVision+Software+Services+Private+Limited/@23.1761691,72.6263517,17z/data=!3m1!4b1!4m6!3m5!1s0x395c2b27a3201327:0x8f84528af4746fa5!8m2!3d23.1761642!4d72.6289266!16s%2Fg%2F11h764tzgt"
 
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
@@ -221,7 +221,7 @@
                 content: '<div id="mapInfoWindowContent">' +
                     '<div class="title">UpVision Software Services Private Limited</div>' +
                     '<div class="content">' +
-                    '<div class="description">314, Pramukh Tangent, Gandhinagar, Gujarat, PIN - 382421, INDIA</div>' +
+                    '<div class="description">A-403, The Landmark, Kudasan, Gandhinagar, Gujarat, PIN - 382421, INDIA</div>' +
                     '<div class="navigate-separator"></div>' +
                     '<div class="navigate"><a target="_blank" href="' + directionUrl + '" class="navigate-link"><div class="icon navigate-icon"></div><div class="navigate-text">Directions</div></a></div>' +
                     '<div class="bottom-actions"><div class="google-maps-link"><a target="_blank" href="' + largerMapUrl + '">View larger map</a></div></div>' +
