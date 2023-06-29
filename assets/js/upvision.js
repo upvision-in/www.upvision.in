@@ -198,8 +198,8 @@
 
     function initMap() {
         try {
-            var centerPosition = { lat: 23.1761691, lng: 72.6263517 };
-            var myPosition = { lat: 23.1761691, lng: 72.6263517 };
+            var centerPosition = { lat: 23.17616, lng: 72.62893 };
+            var myPosition = { lat: 23.17616, lng: 72.62893 };
             var directionUrl = "https://www.google.com/maps/dir//UpVision+Software+Services+Private+Limited/@23.1761691,72.6263517,17z/data=!3m1!4b1!4m6!3m5!1s0x395c2b27a3201327:0x8f84528af4746fa5!8m2!3d23.1761642!4d72.6289266!16s%2Fg%2F11h764tzgt";
             var largerMapUrl = "https://www.google.com/maps/place/UpVision+Software+Services+Private+Limited/@23.1761691,72.6263517,17z/data=!3m1!4b1!4m6!3m5!1s0x395c2b27a3201327:0x8f84528af4746fa5!8m2!3d23.1761642!4d72.6289266!16s%2Fg%2F11h764tzgt"
 
