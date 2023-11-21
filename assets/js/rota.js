@@ -1,17 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
   initCalender();
+  initTimezoneSelectList();
   initMemberCheckboxes();
 });
 
+var calendarStart = new Date("2023-11-1");
+var calendarEnd = new Date("2024-12-31");
 var currentCalendarView = 'timelineMonthly';
+var initialTimeZone = 'Asia/Kolkata';
+var calendar = null;
+
 function initCalender() {
   var calendarElement = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarElement, {
+  calendar = new FullCalendar.Calendar(calendarElement, {
     initialView: currentCalendarView,
+    timeZone: initialTimeZone,
+    eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
+    navLinks: true, // can click day/week names to navigate views
+    dayMaxEvents: true, // allow "more" link when too many events
     headerToolbar: {
       left: 'title',
       center: '',
-      right: 'prev,next today calendarYearly,calendarMonthly,calendarWeekly timelineYearly,timelineMonthly listMonthly,listWeekly'
+      right: 'prev,next today calendarMonthly,calendarWeekly timelineYearly,timelineMonthly,timelineWeekly,timelineWeeklyVertical listMonthly,listWeekly,listDaily'
     },
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
     resourceAreaWidth: '5%',
@@ -46,8 +56,7 @@ function initCalender() {
     views: {
       calendarYearly: {
         type: 'multiMonthYear',
-        buttonText: 'Calendar (Year)',
-        click: function() { console.log('wow... that worked!!'); }
+        buttonText: 'Calendar (Year)'
       },
       calendarMonthly: {
         type: 'dayGridMonth',
@@ -93,10 +102,28 @@ function initCalender() {
       listWeekly: {
         type: 'listWeek',
         buttonText: 'List (Week)'
+      },
+      listDaily: {
+        type: 'listDay',
+        buttonText: 'List (Today)'
       }
+    },
+    eventDidMount: function(info) {
+      tippy(info.el, {
+        content: info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : ''),
+        placement: 'top'
+      });
     }
   });
   calendar.render();
+}
+
+function initTimezoneSelectList() {
+  var timeZoneSelectorEl = document.getElementById('time-zone-selector');
+  timeZoneSelectorEl.addEventListener('change', function() {
+    //console.log('changing the calendar timezone to ' + this.value);
+    calendar.setOption('timeZone', this.value);
+  });
 }
 
 function initMemberCheckboxes() {
@@ -233,15 +260,13 @@ function getEvents()
   events = [];
   var eventTemplates = getEventTemplates();
   //console.log(eventTemplates);
-  var start = new Date("2023-11-1");
-  var end = new Date("2024-12-31");
 
   eventTemplates.forEach((template) => {
     // console.log(template);
 
     var daysCounter = 1;
-    var loop = new Date(start);
-    while (loop <= end) {
+    var loop = new Date(calendarStart);
+    while (loop <= calendarEnd) {
       var onLeave = template.leaves.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
 
       if (template.rotateWeeks && template.weekend && template.weekend.length > 1) {
@@ -258,7 +283,7 @@ function getEvents()
         if(the_day == 6)  // is this Saturday?
         {
           if (first_week <= 7) {  // first Saturday of the month
-            console.log('first saturday of the month...');
+            //console.log('first saturday of the month...');
             template.weekend = [[0],[6,0]];
           }
           else {  // second/third/fourth/fifth Saturday of the month

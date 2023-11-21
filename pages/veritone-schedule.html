@@ -6,10 +6,14 @@ description: UpVision Team Schedule.
 ---
 
 <script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script src='https://cdn.jsdelivr.net/npm/moment@2.29.4/min/moment.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/moment-timezone@0.5.40/builds/moment-timezone-with-data.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/rrule@2.6.4/dist/es5/rrule.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.9/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment-timezone@6.1.9/index.global.min.js'></script>
 <script src="assets/js/rota.js"></script>
 
 <section class="veritone-schedule pb-4">
@@ -24,6 +28,19 @@ description: UpVision Team Schedule.
     <section class="py-1">
         <div class="container-fluid">
             <div class="header">
+                <div class="timezone">
+                    <span>Timezone : </span>
+                    <select id="time-zone-selector">
+                        <option value="Asia/Kolkata">UTC +5:30 (India)</option>
+                        <option value="Asia/Jerusalem">UTC +2 (Israel)</option>
+                        <option value="Europe/Amsterdam">UTC +1 (Amsterdam)</option>
+                        <option value="UTC">UTC +0 (London)</option>
+                        <option value="America/New_York">UTC -5 (Miami / New York)</option>
+                        <option value="America/Chicago">UTC -6 (Chicago)</option>
+                        <option value="America/Denver">UTC -7 (Denver)</option>
+                        <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
+                    </select>
+                </div>
                 <ul id="members"></ul>
             </div>
             <div id='calendar'></div>

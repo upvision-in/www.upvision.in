@@ -1,37 +1,36 @@
 // fullcalendar customizations...
-.fc .fc-timeline-slot.fc-day-today {
-    background-color: var(--fc-today-bg-color);
-}
+.fc .fc-timeline-slot.fc-day-today { background-color: var(--fc-today-bg-color); }
+
+// tippy customizations...
+.tippy-content { font-size: 10px; }
 
 // veritone-schedule styles...
 .veritone-schedule {
-    div {
-        font-size: 12px;
-    }
+    .container-fluid {
+        div { font-size: 12px; }
 
-    .header {
-        display: flex;
-        justify-content: center;
-
-        ul {
+        .header {
             display: flex;
-            gap: 24px;
-            padding: 0;
-            list-style-type: none;
+            justify-content: space-between;
 
-            li {
-                input[type="checkbox"],input[type="checkbox"]+label {
-                    cursor:pointer; user-select: none;
-                }
+            .timezone {
+                span { font-weight: bold; }
+                select { font-size: 0.75rem; }
+            }
 
-                label {
-                    padding-left: 4px;
+            ul {
+                display: flex;
+                gap: 24px;
+                padding: 0;
+                list-style-type: none;
+
+                li {
+                    input[type="checkbox"],input[type="checkbox"]+label { cursor:pointer; user-select: none; }
+                    label { padding-left: 4px; }
                 }
             }
         }
-    }
 
-    #calendar {
-        height: 80vh;
+        #calendar { height: 80vh; }
     }
 }
