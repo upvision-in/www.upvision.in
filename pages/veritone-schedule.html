@@ -1,0 +1,32 @@
+---
+layout: page_layout
+title: Veritone - UpVision Team Schedule
+permalink: /veritone-schedule
+description: UpVision Team Schedule.
+---
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src='https://cdn.jsdelivr.net/npm/rrule@2.6.4/dist/es5/rrule.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.9/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.9/index.global.min.js'></script>
+<script src="assets/js/rota.js"></script>
+
+<section class="veritone-schedule pb-4">
+    <section>
+        <div class="container">
+            <h1 class="display-4 text-center">UpVision Team Schedule</h1>
+            <p class="text-center lead">
+                Team assignment for the 24/7 Global NOC support.
+            </p>
+        </div>
+    </section>
+    <section class="py-1">
+        <div class="container-fluid">
+            <div class="header">
+                <ul id="members"></ul>
+            </div>
+            <div id='calendar'></div>
+        </div>
+    </section>
+</section>
