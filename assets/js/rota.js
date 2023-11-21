@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initMemberCheckboxes();
 });
 
-var currentCalendarView = 'calendarMonthly';
+var currentCalendarView = 'timelineMonthly';
 function initCalender() {
   var calendarElement = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarElement, {

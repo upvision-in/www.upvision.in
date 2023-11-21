@@ -1,7 +1,9 @@
-// * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-// div { font-size: 12px; }
-//html, body, p, div, button, input, optgroup, select, textarea { font-family: $text-font-default; font-size: 12px; }
+// fullcalendar customizations...
+.fc .fc-timeline-slot.fc-day-today {
+    background-color: var(--fc-today-bg-color);
+}
 
+// veritone-schedule styles...
 .veritone-schedule {
     div {
         font-size: 12px;
