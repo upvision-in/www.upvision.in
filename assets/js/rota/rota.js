@@ -110,7 +110,7 @@ function initCalender() {
     },
     eventDidMount: function(info) {
       tippy(info.el, {
-        content: info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '')  + (info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : ''),
+        content: info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '')  + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : (info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : '')),
         placement: 'top'
       });
     }
@@ -208,29 +208,6 @@ function getAssignments() {
   ];
 }
 
-function getLeaves() {
-  return [
-    { name: 'Jay', leaveDate: '2023-11-03' },
-    { name: 'Jay', leaveDate: '2023-11-04' },
-    { name: 'Jay', leaveDate: '2023-11-05' },
-    { name: 'Priyen', leaveDate: '2023-11-15' },
-    { name: 'Vedant', leaveDate: '2023-11-15' },
-    { name: 'Vedant', leaveDate: '2023-11-26' },
-    { name: 'H Jayesh', leaveDate: '2023-11-28' },
-    { name: 'H Jayesh', leaveDate: '2023-11-29' },
-    { name: 'Priyen', leaveDate: '2023-12-07' },
-    { name: 'Shital', leaveDate: '2023-12-06' },
-    { name: 'Shital', leaveDate: '2023-12-07' },
-  ];
-}
-
-function getAlternateWorkdays() {
-  return [
-    { name: 'H Jayesh', workDate: '2023-12-01' },
-    { name: 'H Jayesh', workDate: '2023-12-02' },
-  ];
-}
-
 function getResources() {
   var resources = [];
   var assignments = getAssignments();
@@ -262,7 +239,7 @@ function getEventTemplates() {
         weekend: assignment.weekend ? assignment.weekend.map(w => weekends.filter(f => f.name == w).map(m => m.weekend).flat()) : null,
         rotateWeeks: assignment.rotateWeeks ? assignment.rotateWeeks : null,
         leaves: leaves.filter(l => l.name === member.name).map(l => l.leaveDate),
-        alternateWorkdays: alternateWorkdays.filter(a => a.name === member.name).map(a => a.workDate),
+        alternateWorkdays: alternateWorkdays.filter(a => a.name === member.name),
       });
     }
   });
@@ -273,6 +250,7 @@ var events = null;
 function getEvents()
 {
   events = [];
+  var shifts = getShifts();
   var eventTemplates = getEventTemplates();
   //console.log(eventTemplates);
 
@@ -282,9 +260,6 @@ function getEvents()
     var daysCounter = 1;
     var loop = new Date(calendarStart);
     while (loop <= calendarEnd) {
-      var onLeave = template.leaves.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
-      var onAlternateWorkday = template.alternateWorkdays.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
-
       if (template.rotateWeeks && template.weekend && template.weekend.length > 1) {
         if ((daysCounter % (template.rotateWeeks * 7)) == 0) {
           //console.log('rotated the weekend... old weekend : ' + template.weekend[0] + ", new weekend : " + template.weekend[1]);
@@ -308,17 +283,24 @@ function getEvents()
         }
       }
 
+      var onLeave = template.leaves.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
+      var alternateWorkdayDetails = template.alternateWorkdays.filter(a => a.workDate == loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
+      var onAlternateWorkday = alternateWorkdayDetails.length > 0;
+      var onAlternateWorkShift = alternateWorkdayDetails.length > 0 && alternateWorkdayDetails[0].shift != null && alternateWorkdayDetails[0].shift != template.shift.name;
+      var alternateShift = onAlternateWorkShift ? shifts.filter(s => s.name === alternateWorkdayDetails[0].shift)[0] : null;
+
       if (onAlternateWorkday || !template.weekend[0].includes(loop.getDay())) {
-        //console.log("loop : " + loop + ", daysCounter : " + daysCounter + ", onLeave : " + onLeave + ", onAlternateWorkday : " + onAlternateWorkday);
+        //console.log("loop : " + loop + ", daysCounter : " + daysCounter + ", onLeave : " + onLeave + ", onAlternateWorkday : " + onAlternateWorkday + ", onAlternateWorkShift : " + onAlternateWorkShift);
         events.push({
-          resourceId: template.shift.name,
+          resourceId: onAlternateWorkShift ? alternateShift.name : template.shift.name,
           member: template.member.name,
-          shift: template.shift.name,
+          shift: onAlternateWorkShift ? alternateShift.name : template.shift.name,
           onLeave: onLeave,
           onAlternateWorkday: onAlternateWorkday,
-          title: template.member.name + " (" + (onLeave ? "On Leave" : (onAlternateWorkday ? "On Alternate Workday" : template.shift.name)) + ")",
-          start: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2) + template.shift.start,
-          end: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + (loop.getDate().valueOf() + (template.shift.name === '3-Night' ? 1 : 0))).slice(-2) + template.shift.end,
+          onAlternateWorkShift: onAlternateWorkShift,
+          title: template.member.name + " (" + (onLeave ? "On Leave" : (onAlternateWorkday ? (onAlternateWorkShift ? "On Alternate Shift" : "On Alternate Workday") : template.shift.name)) + ")",
+          start: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2) + (onAlternateWorkShift ? alternateShift.start : template.shift.start),
+          end: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + (loop.getDate().valueOf() + (onAlternateWorkShift ? (alternateShift.name === '3-Night') : (template.shift.name === '3-Night' ? 1 : 0)))).slice(-2) + (onAlternateWorkShift ? alternateShift.end : template.shift.end),
           backgroundColor: onLeave ? "#555555" : onAlternateWorkday ? "#888888" : template.member.backgroundColor,
           textColor: onLeave ? "#ffffff" : template.member.textColor
         });
