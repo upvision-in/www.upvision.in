@@ -1,12 +1,12 @@
 .wiki-link i {
   font-size: 12px;
 
-  i:first-of-type {
+  &:first-of-type {
     padding-right: 4px;
     color: black;
   }
 
-  i:last-of-type {
+  &:last-of-type {
     padding-left: 8px;
   }
 }

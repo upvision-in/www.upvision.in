@@ -15,7 +15,7 @@ function initCalender() {
   calendar = new FullCalendar.Calendar(calendarElement, {
     initialView: currentCalendarView,
     timeZone: initialTimeZone,
-    eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
+    //eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
     navLinks: true, // can click day/week names to navigate views
     dayMaxEvents: true, // allow "more" link when too many events
     headerToolbar: {
@@ -37,8 +37,8 @@ function initCalender() {
           //console.log('export data to csv...!');
           if (events != null) {
             let csvContent = "data:text/csv;charset=utf-8,"
-                             + "Shift,Member,Start,End,OnLeave\n"
-                             + events.map(e => e.shift + "," + e.member + "," + e.start + "," + e.end + "," + (e.onLeave ? "Yes" : "")).join("\n");
+              + "Shift,Member,Start,End,OnLeave\n"
+              + events.map(e => e.shift + "," + e.member + "," + e.start + "," + e.end + "," + (e.onLeave ? "Yes" : "") + "," + (e.onHoliday ? "Yes" : "")).join("\n");
             data = encodeURI(csvContent);
             link = document.createElement('a');
             link.setAttribute('href', data);
@@ -110,7 +110,7 @@ function initCalender() {
     },
     eventDidMount: function(info) {
       tippy(info.el, {
-        content: info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '')  + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : (info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : '')),
+        content: info.event.extendedProps.onHoliday ? "On Public Holiday" : info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '') + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : (info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : '')),
         placement: 'top'
       });
     }
@@ -120,14 +120,21 @@ function initCalender() {
 
 function initTimezoneSelectList() {
   var timeZoneSelectorEl = document.getElementById('time-zone-selector');
-  timeZoneSelectorEl.addEventListener('change', function() {
+  timeZoneSelectorEl.addEventListener('change', function () {
     //console.log('changing the calendar timezone to ' + this.value);
     calendar.setOption('timeZone', this.value);
   });
 }
 
+function toggleMemberCheckboxes(selection) {  // true = select all, false = unselect all
+  $('.checkbox-member').prop('checked', selection);
+  var members = getMembers();
+  members.forEach(m => m.active = selection ? 1 : 0);
+  initCalender();
+}
+
 function initMemberCheckboxes() {
-  var membersElement= document.getElementById('members');
+  var membersElement = document.getElementById('members');
   var members = getMembers();
   members.forEach((member) => {
     var checkbox = document.createElement('input');
@@ -144,6 +151,8 @@ function initMemberCheckboxes() {
     var label = document.createElement('label');
     label.htmlFor = member.name;
     label.innerHTML = member.name;
+    label.style.backgroundColor = member.backgroundColor;
+    label.style.color = member.textColor;
 
     var li = document.createElement('li');
     li.appendChild(checkbox);
@@ -176,7 +185,7 @@ function getShifts() {
     { name: '1-Morning', start: 'T05:00:00', end: 'T14:00:00' },
     { name: '2-Afternoon', start: 'T13:00:00', end: 'T22:00:00' },
     { name: '3-Night', start: 'T21:00:00', end: 'T05:00:00' },
-    { name: '4-DayTime', start: 'T10:00:00', end: 'T19:00:00' }
+    //{ name: '4-DayTime', start: 'T10:00:00', end: 'T19:00:00' },
   ];
 }
 
@@ -203,8 +212,8 @@ function getAssignments() {
     { member: 'P Jayesh', shift: ['3-Night'], weekend: ['Sat-Sun'] },
     { member: 'Viral', shift: ['3-Night'], weekend: ['Mon-Tue'] },
     { member: 'Vivek', shift: ['3-Night'], weekend: ['Wed-Thu'] },
-    { member: 'Nilam', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
-    { member: 'Raj', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
+    //{ member: 'Nilam', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
+    //{ member: 'Raj', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
   ];
 }
 
@@ -215,7 +224,7 @@ function getResources() {
   shifts.forEach((shift) => {
     var members = assignments.filter(a => a.shift.includes(shift.name)).map(b => b.member);
     members.forEach((member) => {
-      resources.push({ id: shift.name, member: member});
+      resources.push({ id: shift.name, member: member });
     });
   });
   return resources;
@@ -247,9 +256,9 @@ function getEventTemplates() {
 }
 
 var events = null;
-function getEvents()
-{
+function getEvents() {
   events = [];
+  var holidays = getHolidays();
   var shifts = getShifts();
   var eventTemplates = getEventTemplates();
   //console.log(eventTemplates);
@@ -271,11 +280,11 @@ function getEvents()
         // rotate weekend such that first Saturday of the month is working...
         var first_week = loop.getDate();
         var the_day = loop.getDay();
-        if(the_day == 6)  // is this Saturday?
+        if (the_day == 6)  // is this Saturday?
         {
           if (first_week <= 7) {  // first Saturday of the month
             //console.log('first saturday of the month...');
-            template.weekend = [[0],[6,0]];
+            template.weekend = [[0], [6, 0]];
           }
           else {  // second/third/fourth/fifth Saturday of the month
             template.weekend.push(template.weekend.shift());
@@ -283,6 +292,8 @@ function getEvents()
         }
       }
 
+      var onHoliday = holidays.map(h => h.date).includes(loop.getFullYear() + "-" + (loop.getMonth() + 1) + "-" + loop.getDate());
+      var holiday = onHoliday ? holidays.filter(h => h.date === (loop.getFullYear() + "-" + (loop.getMonth() + 1) + "-" + loop.getDate()))[0] : "";
       var onLeave = template.leaves.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
       var alternateWorkdayDetails = template.alternateWorkdays.filter(a => a.workDate == loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
       var onAlternateWorkday = alternateWorkdayDetails.length > 0;
@@ -295,14 +306,15 @@ function getEvents()
           resourceId: onAlternateWorkShift ? alternateShift.name : template.shift.name,
           member: template.member.name,
           shift: onAlternateWorkShift ? alternateShift.name : template.shift.name,
+          onHoliday: onHoliday,
           onLeave: onLeave,
           onAlternateWorkday: onAlternateWorkday,
           onAlternateWorkShift: onAlternateWorkShift,
-          title: template.member.name + " (" + (onLeave ? "On Leave" : (onAlternateWorkday ? (onAlternateWorkShift ? "On Alternate Shift" : "On Alternate Workday") : template.shift.name)) + ")",
+          title: template.member.name + " (" + (onHoliday ? "On Holiday - " + holiday.name : (onLeave ? "On Leave" : (onAlternateWorkday ? (onAlternateWorkShift ? "On Alternate Shift" : "On Alternate Workday") : template.shift.name))) + ")",
           start: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2) + (onAlternateWorkShift ? alternateShift.start : template.shift.start),
           end: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + (loop.getDate().valueOf() + (onAlternateWorkShift ? (alternateShift.name === '3-Night') : (template.shift.name === '3-Night' ? 1 : 0)))).slice(-2) + (onAlternateWorkShift ? alternateShift.end : template.shift.end),
-          backgroundColor: onLeave ? "#555555" : onAlternateWorkday ? "#888888" : template.member.backgroundColor,
-          textColor: onLeave ? "#ffffff" : template.member.textColor
+          backgroundColor: onHoliday ? "#333333" : onLeave ? "#555555" : onAlternateWorkday ? "#888888" : template.member.backgroundColor,
+          textColor: onHoliday ? "#ffffff" : onLeave ? "#ffffff" : template.member.textColor
         });
       }
 

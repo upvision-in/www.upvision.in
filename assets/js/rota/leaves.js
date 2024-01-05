@@ -14,5 +14,7 @@ function getLeaves() {
     { name: 'Ankit', leaveDate: '2023-12-11' },
     { name: 'Vedant', leaveDate: '2023-12-13' },
     { name: 'Shital', leaveDate: '2023-12-14' },
+    { name: 'Viral', leaveDate: '2024-01-03' },
+    { name: 'Ankit', leaveDate: '2024-01-15' },
   ];
 }
