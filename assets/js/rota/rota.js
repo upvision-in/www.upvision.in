@@ -127,7 +127,7 @@ function initTimezoneSelectList() {
 }
 
 function toggleMemberCheckboxes(selection) {  // true = select all, false = unselect all
-  $('.checkbox-member').prop('checked', selection);
+  $('#members input[type="checkbox"]').prop('checked', selection);
   var members = getMembers();
   members.forEach(m => m.active = selection ? 1 : 0);
   initCalender();
