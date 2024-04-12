@@ -22,5 +22,12 @@ function getLeaves() {
     { name: 'Priyen', leaveDate: '2024-03-24' },
     { name: 'Priyen', leaveDate: '2024-03-27' },
     { name: 'Priyen', leaveDate: '2024-03-28' },
+    { name: 'Viral', leaveDate: '2024-04-03' },
+    { name: 'Viral', leaveDate: '2024-04-04' },
+    { name: 'Viral', leaveDate: '2024-04-05' },
+    { name: 'Viral', leaveDate: '2024-04-06' },
+    { name: 'Ankit', leaveDate: '2024-04-10' },
+    { name: 'Ankit', leaveDate: '2024-04-11' },
+    { name: 'Ankit', leaveDate: '2024-04-14' },
   ];
 }
