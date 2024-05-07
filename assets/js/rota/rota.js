@@ -4,11 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
   initMemberCheckboxes();
 });
 
-var calendarStart = new Date("2023-11-1");
-var calendarEnd = new Date("2024-12-31");
 var currentCalendarView = 'timelineMonthly';
 var initialTimeZone = 'Asia/Kolkata';
 var calendar = null;
+var events = null;
 
 function initCalender() {
   var calendarElement = document.getElementById('calendar');
@@ -20,7 +19,7 @@ function initCalender() {
     dayMaxEvents: true, // allow "more" link when too many events
     headerToolbar: {
       left: 'title',
-      center: '',
+      center: 'exportButton',
       right: 'prev,next today calendarMonthly,calendarWeekly timelineYearly,timelineMonthly,timelineWeekly,timelineWeeklyVertical listMonthly,listWeekly,listDaily'
     },
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -36,9 +35,9 @@ function initCalender() {
         click: function() {
           //console.log('export data to csv...!');
           if (events != null) {
-            let csvContent = "data:text/csv;charset=utf-8,"
-              + "Shift,Member,Start,End,OnLeave\n"
-              + events.map(e => e.shift + "," + e.member + "," + e.start + "," + e.end + "," + (e.onLeave ? "Yes" : "") + "," + (e.onHoliday ? "Yes" : "")).join("\n");
+            let csvContent = 'data:text/csv;charset=utf-8,'
+             + 'Shift,Member,Start,End,OnLeave,PublicHoliday\n'
+             + events.map((e) => e.shift + ',' + e.member + ',' + e.start + ',' + e.end + ',' + (e.onLeave ? 'Yes' : '') + ',' + (e.onHoliday ? 'Yes' : '')).join('\n');
             data = encodeURI(csvContent);
             link = document.createElement('a');
             link.setAttribute('href', data);
@@ -54,66 +53,26 @@ function initCalender() {
       currentCalendarView = dateInfo.view.type;
     },
     views: {
-      calendarYearly: {
-        type: 'multiMonthYear',
-        buttonText: 'Calendar (Year)'
-      },
-      calendarMonthly: {
-        type: 'dayGridMonth',
-        buttonText: 'Calendar (Month)'
-      },
-      calendarWeekly: {
-        type: 'dayGridWeek',
-        buttonText: 'Calendar (Week)'
-      },
-      calendarDaily: {
-        type: 'timeGridDay',
-        buttonText: 'Calendar (Day)'
-      },
-      timelineYearly: {
-        type: 'resourceTimelineYear',
-        buttonText: 'Timeline (Year)'
-      },
-      timelineMonthly: {
-        type: 'resourceTimelineMonth',
-        buttonText: 'Timeline (Month)'
-      },
-      timelineWeekly: {
-        type: 'resourceTimelineWeek',
-        buttonText: 'Timeline (Week)'
-      },
-      timelineWeeklyVertical: {
-        type: 'resourceTimeGrid',
-        duration: { days: 7 },
-        buttonText: 'Timeline (Week) Vertical'
-      },
-      timelineDaily: {
-        type: 'resourceTimelineDay',
-        buttonText: 'Timeline (Day)'
-      },
-      listYearly: {
-        type: 'listYear',
-        buttonText: 'List (Year)'
-      },
-      listMonthly: {
-        type: 'listMonth',
-        buttonText: 'List (Month)'
-      },
-      listWeekly: {
-        type: 'listWeek',
-        buttonText: 'List (Week)'
-      },
-      listDaily: {
-        type: 'listDay',
-        buttonText: 'List (Today)'
-      }
+      calendarYearly: { type: 'multiMonthYear', buttonText: 'Calendar (Year)' },
+      calendarMonthly: { type: 'dayGridMonth', buttonText: 'Calendar (Month)' },
+      calendarWeekly: { type: 'dayGridWeek', buttonText: 'Calendar (Week)' },
+      calendarDaily: { type: 'timeGridDay', buttonText: 'Calendar (Day)' },
+      timelineYearly: { type: 'resourceTimelineYear', buttonText: 'Timeline (Year)' },
+      timelineMonthly: { type: 'resourceTimelineMonth', buttonText: 'Timeline (Month)' },
+      timelineWeekly: { type: 'resourceTimelineWeek', buttonText: 'Timeline (Week)' },
+      timelineWeeklyVertical: { type: 'resourceTimeGrid', duration: { days: 7 }, buttonText: 'Timeline (Week) Vertical' },
+      timelineDaily: { type: 'resourceTimelineDay', buttonText: 'Timeline (Day)' },
+      listYearly: { type: 'listYear', buttonText: 'List (Year)' },
+      listMonthly: { type: 'listMonth', buttonText: 'List (Month)' },
+      listWeekly: { type: 'listWeek', buttonText: 'List (Week)' },
+      listDaily: { type: 'listDay', buttonText: 'List (Today)' }
     },
     eventDidMount: function(info) {
       tippy(info.el, {
-        content: info.event.extendedProps.onHoliday ? "On Public Holiday" : info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '') + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : (info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : '')),
-        placement: 'top'
+        content: info.event.extendedProps.onHoliday ? 'On Public Holiday' : info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '') + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : ''),
+        placement: 'top',
       });
-    }
+    },
   });
   calendar.render();
 }
@@ -126,10 +85,11 @@ function initTimezoneSelectList() {
   });
 }
 
-function toggleMemberCheckboxes(selection) {  // true = select all, false = unselect all
+function toggleMemberCheckboxes(selection) {
+  // true = select all, false = unselect all
   $('#members input[type="checkbox"]').prop('checked', selection);
   var members = getMembers();
-  members.forEach(m => m.active = selection ? 1 : 0);
+  members.forEach((m) => (m.active = selection ? 1 : 0));
   initCalender();
 }
 
@@ -141,10 +101,12 @@ function initMemberCheckboxes() {
     checkbox.type = 'checkbox';
     checkbox.id = member.name;
     checkbox.checked = member.active;
-    checkbox.addEventListener('click', function(e) {
+    checkbox.addEventListener('click', function (e) {
       //console.log("input id : " + e.target.id + ", checked : " + e.target.checked);
       var members = getMembers();
-      members.filter(m => m.name == e.target.id)[0].active = e.target.checked ? 1 : 0;
+      members.filter((m) => m.name == e.target.id)[0].active = e.target.checked
+        ? 1
+        : 0;
       initCalender();
     });
 
@@ -175,7 +137,7 @@ function getMembers() {
       { active: 1, name: 'P Jayesh', backgroundColor: '#9eb7e5', textColor: '#000000' },
       { active: 1, name: 'Viral', backgroundColor: '#e8e5da', textColor: '#000000' },
       { active: 1, name: 'Vivek', backgroundColor: '#cdc392', textColor: '#000000' },
-    ]
+    ];
   }
   return members;
 }
@@ -191,137 +153,90 @@ function getShifts() {
 
 function getWeekends() {
   return [
-    { name: 'Fri-Sat', weekend: [5,6] },
-    { name: 'Sun-Mon', weekend: [0,1] },
-    { name: 'Tue-Wed', weekend: [2,3] },
-    { name: 'Sat-Sun', weekend: [6,0] },
-    { name: 'Mon-Tue', weekend: [1,2] },
-    { name: 'Wed-Thu', weekend: [3,4] },
-    { name: 'SunOnly', weekend: [0] }
+    { name: 'Fri-Sat', weekend: [5, 6] },
+    { name: 'Sun-Mon', weekend: [0, 1] },
+    { name: 'Tue-Wed', weekend: [2, 3] },
+    { name: 'Sat-Sun', weekend: [6, 0] },
+    { name: 'Mon-Tue', weekend: [1, 2] },
+    { name: 'Wed-Thu', weekend: [3, 4] },
+    { name: 'SunOnly', weekend: [0] },
   ];
 }
 
-function getAssignments() {
-  return [
-    { member: 'Ankit', shift: ['1-Morning'], weekend: ['Sun-Mon', 'Tue-Wed', 'Fri-Sat'], rotateWeeks: 4 },
-    { member: 'Jay', shift: ['1-Morning'], weekend: ['Fri-Sat', 'Sun-Mon', 'Tue-Wed'], rotateWeeks: 4 },
-    { member: 'Vedant', shift: ['1-Morning'], weekend: ['Tue-Wed', 'Fri-Sat', 'Sun-Mon'], rotateWeeks: 4 },
-    { member: 'H Jayesh', shift: ['2-Afternoon'], weekend: ['Tue-Wed', 'Fri-Sat', 'Sun-Mon'], rotateWeeks: 4 },
-    { member: 'Shital', shift: ['2-Afternoon'], weekend: ['Fri-Sat', 'Sun-Mon', 'Tue-Wed'], rotateWeeks: 4 },
-    { member: 'Priyen', shift: ['2-Afternoon'], weekend: ['Sun-Mon', 'Tue-Wed', 'Fri-Sat'], rotateWeeks: 4 },
-    { member: 'P Jayesh', shift: ['3-Night'], weekend: ['Sat-Sun'] },
-    { member: 'Viral', shift: ['3-Night'], weekend: ['Mon-Tue'] },
-    { member: 'Vivek', shift: ['3-Night'], weekend: ['Wed-Thu'] },
-    //{ member: 'Nilam', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
-    //{ member: 'Raj', shift: ['4-DayTime'], weekend: ['SunOnly', 'Sat-Sun'] },
-  ];
+function getMemberDetails() {
+  var memberDetails = [];
+  var memberNames = getMemberNames();
+  var leaves = getLeaves();
+  var alternateWorkdays = getAlternateWorkdays();
+  var members = getMembers();
+
+  memberNames.forEach ((memberName) => {
+    var member = members.filter((m) => m.name === memberName)[0];
+    if (member.active) {
+      memberDetails.push({
+        name: memberName,
+        backgroundColor: member.backgroundColor,
+        textColor: member.textColor,
+        events: window['getCalendarEventsFor' + memberName.replace(/\s/g, '')](),  // remove space in the memberName
+        leaves: leaves.filter(l => l.name === memberName).map(l => new Date(l.leaveDate).getTime()),
+        alternateWorkdays: alternateWorkdays.filter(a => a.name === memberName),
+      });
+    }
+  });
+  
+  return memberDetails;
 }
 
 function getResources() {
   var resources = [];
-  var assignments = getAssignments();
   var shifts = getShifts();
-  shifts.forEach((shift) => {
-    var members = assignments.filter(a => a.shift.includes(shift.name)).map(b => b.member);
-    members.forEach((member) => {
-      resources.push({ id: shift.name, member: member });
-    });
+  var memberDetails = getMemberDetails();
+
+  memberDetails.forEach((member) => {
+    var memberShifts = [...new Set(member.events.map((event) => event.shift))];
+    memberShifts.forEach((ms) => {
+      resources.push({ id: ms, member: member.name });
+    })
   });
+
   return resources;
 }
 
-function getEventTemplates() {
-  var eventTemplates = [];
-  var shifts = getShifts();
-  var members = getMembers();
-  var leaves = getLeaves();
-  var alternateWorkdays = getAlternateWorkdays();
-  var weekends = getWeekends();
-  var assignments = getAssignments();
-  assignments.forEach((assignment) => {
-    var member = members.filter(m => m.name === assignment.member)[0];
-    var shift = shifts.filter(s => s.name === assignment.shift[0])[0];
-    if (member && member.active === 1) {
-      eventTemplates.push({
-        member: member,
-        shift: shift,
-        weekend: assignment.weekend ? assignment.weekend.map(w => weekends.filter(f => f.name == w).map(m => m.weekend).flat()) : null,
-        rotateWeeks: assignment.rotateWeeks ? assignment.rotateWeeks : null,
-        leaves: leaves.filter(l => l.name === member.name).map(l => l.leaveDate),
-        alternateWorkdays: alternateWorkdays.filter(a => a.name === member.name),
-      });
-    }
-  });
-  return eventTemplates;
-}
-
-var events = null;
 function getEvents() {
   events = [];
   var holidays = getHolidays();
   var shifts = getShifts();
-  var eventTemplates = getEventTemplates();
-  //console.log(eventTemplates);
+  var memberDetails = getMemberDetails();
 
-  eventTemplates.forEach((template) => {
-    // console.log(template);
-
-    var daysCounter = 1;
-    var loop = new Date(calendarStart);
-    while (loop <= calendarEnd) {
-      if (template.rotateWeeks && template.weekend && template.weekend.length > 1) {
-        if ((daysCounter % (template.rotateWeeks * 7)) == 0) {
-          //console.log('rotated the weekend... old weekend : ' + template.weekend[0] + ", new weekend : " + template.weekend[1]);
-          template.weekend.push(template.weekend.shift());
-        }
-      }
-
-      if (template.shift.name == '4-DayTime') {
-        // rotate weekend such that first Saturday of the month is working...
-        var first_week = loop.getDate();
-        var the_day = loop.getDay();
-        if (the_day == 6)  // is this Saturday?
-        {
-          if (first_week <= 7) {  // first Saturday of the month
-            //console.log('first saturday of the month...');
-            template.weekend = [[0], [6, 0]];
-          }
-          else {  // second/third/fourth/fifth Saturday of the month
-            template.weekend.push(template.weekend.shift());
-          }
-        }
-      }
-
-      var onHoliday = holidays.map(h => h.date).includes(loop.getFullYear() + "-" + (loop.getMonth() + 1) + "-" + loop.getDate());
-      var holiday = onHoliday ? holidays.filter(h => h.date === (loop.getFullYear() + "-" + (loop.getMonth() + 1) + "-" + loop.getDate()))[0] : "";
-      var onLeave = template.leaves.includes(loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
-      var alternateWorkdayDetails = template.alternateWorkdays.filter(a => a.workDate == loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2));
+  memberDetails.forEach((member) => {
+    member.events.forEach((event) => {
+      var eventDate = new Date(event.date);
+      var eventDateTime = eventDate.getTime();  // get total milliseconds...  // Milliseconds since Jan 1, 1970, 00:00:00.000 GMT
+      var shift = shifts.filter((s) => s.name === event.shift)[0];
+      var onHoliday = holidays.map((h) => new Date(h.date).getTime()).includes(eventDateTime);
+      var holiday = onHoliday ? holidays.filter((h) => new Date(h.date).getTime() === eventDateTime)[0] : '';
+      var onLeave = member.leaves.includes(eventDateTime);
+      var alternateWorkdayDetails = member.alternateWorkdays.filter((a) => new Date(a.workDate).getTime() === eventDateTime);
       var onAlternateWorkday = alternateWorkdayDetails.length > 0;
-      var onAlternateWorkShift = alternateWorkdayDetails.length > 0 && alternateWorkdayDetails[0].shift != null && alternateWorkdayDetails[0].shift != template.shift.name;
-      var alternateShift = onAlternateWorkShift ? shifts.filter(s => s.name === alternateWorkdayDetails[0].shift)[0] : null;
+      var onAlternateWorkShift = alternateWorkdayDetails.length > 0 && alternateWorkdayDetails[0].shift != null && alternateWorkdayDetails[0].shift != shift.name;
+      var alternateShift = onAlternateWorkShift ? shifts.filter((s) => s.name === alternateWorkdayDetails[0].shift)[0] : null;
 
-      if (onAlternateWorkday || !template.weekend[0].includes(loop.getDay())) {
-        //console.log("loop : " + loop + ", daysCounter : " + daysCounter + ", onLeave : " + onLeave + ", onAlternateWorkday : " + onAlternateWorkday + ", onAlternateWorkShift : " + onAlternateWorkShift);
-        events.push({
-          resourceId: onAlternateWorkShift ? alternateShift.name : template.shift.name,
-          member: template.member.name,
-          shift: onAlternateWorkShift ? alternateShift.name : template.shift.name,
-          onHoliday: onHoliday,
-          onLeave: onLeave,
-          onAlternateWorkday: onAlternateWorkday,
-          onAlternateWorkShift: onAlternateWorkShift,
-          title: template.member.name + " (" + (onHoliday ? "On Holiday - " + holiday.name : (onLeave ? "On Leave" : (onAlternateWorkday ? (onAlternateWorkShift ? "On Alternate Shift" : "On Alternate Workday") : template.shift.name))) + ")",
-          start: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + loop.getDate()).slice(-2) + (onAlternateWorkShift ? alternateShift.start : template.shift.start),
-          end: loop.getFullYear() + '-' + ("0" + (loop.getMonth() + 1)).slice(-2) + '-' + ("0" + (loop.getDate().valueOf() + (onAlternateWorkShift ? (alternateShift.name === '3-Night') : (template.shift.name === '3-Night' ? 1 : 0)))).slice(-2) + (onAlternateWorkShift ? alternateShift.end : template.shift.end),
-          backgroundColor: onHoliday ? "#333333" : onLeave ? "#555555" : onAlternateWorkday ? "#888888" : template.member.backgroundColor,
-          textColor: onHoliday ? "#ffffff" : onLeave ? "#ffffff" : template.member.textColor
-        });
-      }
-
-      var newDate = loop.setDate(loop.getDate() + 1);
-      loop = new Date(newDate);
-      daysCounter++;
-    }
+      //console.log("loop : " + loop + ", daysCounter : " + daysCounter + ", onLeave : " + onLeave + ", onAlternateWorkday : " + onAlternateWorkday + ", onAlternateWorkShift : " + onAlternateWorkShift);
+      events.push({
+        resourceId: onAlternateWorkShift ? alternateShift.name : shift.name,
+        member: member.name,
+        shift: onAlternateWorkShift ? alternateShift.name : shift.name,
+        onHoliday: onHoliday,
+        onLeave: onLeave,
+        onAlternateWorkday: onAlternateWorkday,
+        onAlternateWorkShift: onAlternateWorkShift,
+        title: member.name + ' (' + (onHoliday ? 'On Holiday - ' + holiday.name : onLeave ? 'On Leave' : onAlternateWorkday ? onAlternateWorkShift ? 'On Alternate Shift' : 'On Alternate Workday' : shift.name) + ')',
+        start: eventDate.getFullYear() + '-' + ('0' + (eventDate.getMonth() + 1)).slice(-2) + '-' + ('0' + eventDate.getDate()).slice(-2) + (onAlternateWorkShift ? alternateShift.start : shift.start),
+        end: eventDate.getFullYear() + '-' + ('0' + (eventDate.getMonth() + 1)).slice(-2) + '-' + ('0' + (eventDate.getDate().valueOf() + (onAlternateWorkShift ? alternateShift.name === '3-Night' : shift.name === '3-Night' ? 1 : 0))).slice(-2) + (onAlternateWorkShift ? alternateShift.end : shift.end),
+        backgroundColor: onHoliday ? '#333333' : onLeave ? '#555555' : onAlternateWorkday ? '#888888' : member.backgroundColor,
+        textColor: onHoliday ? '#ffffff' : onLeave ? '#ffffff' : member.textColor,
+      });
+    });
   });
 
   return events;

@@ -14,6 +14,7 @@ description: UpVision Team Schedule.
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment-timezone@6.1.9/index.global.min.js'></script>
+<script src="assets/js/rota/team/members.js"></script>
 <script src="assets/js/rota/alternateWorkdays.js"></script>
 <script src="assets/js/rota/holidays.js"></script>
 <script src="assets/js/rota/leaves.js"></script>
@@ -30,10 +31,10 @@ description: UpVision Team Schedule.
     </section>
     <section class="py-1">
         <div class="container-fluid">
-            <div class="header">
-                <div class="timezone">
+            <div class="row header">
+                <div class="col-lg-6 col-md-4 col-sm-12 timezone pb-2">
                     <span>Timezone : </span>
-                    <select id="time-zone-selector">
+                    <select id="time-zone-selector" class="mr-4">
                         <option value="Asia/Kolkata">UTC +5:30 (India)</option>
                         <option value="Asia/Jerusalem">UTC +2 (Israel)</option>
                         <option value="Europe/Amsterdam">UTC +1 (Amsterdam)</option>
@@ -43,19 +44,20 @@ description: UpVision Team Schedule.
                         <option value="America/Denver">UTC -7 (Denver)</option>
                         <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
                     </select>
-                    <a class="ml-4" target="_blank" href="/public-holidays">
-                        <i class="fas fa-external-link-square-alt"></i>
-                        Public Holidays
+                    <a target="_blank" href="/public-holidays">
+                        <i class="fas fa-external-link-square-alt"></i> Public Holidays
                     </a>
                 </div>
-                <div class="members">
-                    <div>
-                        <button onclick="toggleMemberCheckboxes(true);"><i
-                                class="pr-1 fa-solid fa-check-double"></i>Select All</button>
-                        <button onclick="toggleMemberCheckboxes(false);"><i class="pr-1 fa-solid fa-eraser"></i>Unselect
-                            All</button>
+                <div class="col-lg-6 col-md-8 col-sm-12 members">
+                    <div class="row" style="width: 100%;">
+                        <div class="col-md-4 col-sm-12 selection">
+                            <button onclick="toggleMemberCheckboxes(true);"><i class="pr-1 fa-solid fa-check-double"></i>Select All</button>
+                            <button onclick="toggleMemberCheckboxes(false);"><i class="pr-1 fa-solid fa-eraser"></i>Unselect All</button>
+                        </div>
+                        <div class="col-md-8 col-sm-12">
+                            <ul id="members"></ul>
+                        </div>
                     </div>
-                    <ul id="members"></ul>
                 </div>
             </div>
             <div id='calendar'></div>

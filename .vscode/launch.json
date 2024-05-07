@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File with Arguments (Add)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "D:\\Code\\Customers\\UpVision\\www.upvision.in\\www.upvision.in\\assets\\js\\rota\\team\\_helper.py",
+            "console": "integratedTerminal",
+            "args": ["-o", "add", "-n", "Vedant", "-i", "1-Morning", "-l", "2-Rotation", "-r", "4", "-w", "tue-wed", "-s", "2023-11-1", "-f", "2024-12-31"]
+        },
+        {
+            "name": "Python Debugger: Current File with Arguments (Remove)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "D:\\Code\\Customers\\UpVision\\www.upvision.in\\www.upvision.in\\assets\\js\\rota\\team\\_helper.py",
+            "console": "integratedTerminal",
+            "args": ["-o", "remove", "-n", "Jay", "-s", "2023-11-1", "-f", "2024-12-31", "-c"]
+        }
+    ]
+}
