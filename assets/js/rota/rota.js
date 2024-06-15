@@ -189,7 +189,6 @@ function getMemberDetails() {
 
 function getResources() {
   var resources = [];
-  var shifts = getShifts();
   var memberDetails = getMemberDetails();
 
   memberDetails.forEach((member) => {
