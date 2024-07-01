@@ -45,19 +45,25 @@ def setupArgParse():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description='Generate Team Calendar.',
                                      epilog='Use the program to manage fullcalendar events for the team!')
-    parser.add_argument('-n', '--name', nargs=1, metavar=('Name'), required=True, default=argparse.SUPPRESS, help='Name of the team member')
-    parser.add_argument('-o', '--operation', choices=['add', 'remove'], default='add', required=True, help='Operation to perform. Add/Remove days to/from the team member')
+    parser.add_argument('-o', '--operation', choices=['add', 'remove', 'refresh'], default='add', required=True, help='Operation to perform. Add/Remove days to/from the team member. Refresh to rebuild members js')
+    parser.add_argument('-n', '--name', nargs=1, metavar=('Name'), default=argparse.SUPPRESS, help='Name of the team member')
     parser.add_argument('-i', '--shift', choices=['1-Morning', '2-Afternoon', '3-Night'], help='Shift working on')
     parser.add_argument('-l', '--algorithm', choices=['1-Basic', '2-Rotation'], help='Algorithm to use to (1-Basic will add 5 days and then skip 2 days for weekend, 2-Rotation will use shift rotation mechanism)')
     parser.add_argument('-r', '--rotateWeeks', type=int, default=4, help='Weeks to work before rotating the weekends (Weekends to rotate : Fri-Sat, Sun-Mon, Tue-Wed)')
     parser.add_argument('-w', '--firstWeekend', choices=['fri-sat', 'sun-mon', 'tue-wed'], help='First weekend to begin with (Weekends : Fri-Sat, Sun-Mon, Tue-Wed)')
-    parser.add_argument('-s', '--start', required=True, help='Start date for the operation')
-    parser.add_argument('-f', '--finish', required=True, help='Finish date for the operation')
+    parser.add_argument('-s', '--start', help='Start date for the operation')
+    parser.add_argument('-f', '--finish', help='Finish date for the operation')
     parser.add_argument('-c', '--cleanHistory', action='store_true', help='Clean records from the past')  # the flag prevents accidental removal of historical records
     parser.add_argument('-v', '--verbose', action='store_true')  # on/off flag
     args = parser.parse_args()
     if args.operation == 'add':
-        if not args.shift:
+        if not args.name:
+            parser.error('the following arguments are required: -n/--name')
+        elif not args.start:
+            parser.error('the following arguments are required: -s/--start')
+        elif not args.finish:
+            parser.error('the following arguments are required: -f/--finish')
+        elif not args.shift:
             parser.error('the following arguments are required: -i/--shift')
         elif not args.algorithm:
             parser.error('the following arguments are required: -l/--algorithm')
@@ -71,6 +77,17 @@ def setupArgParse():
                     return args
             else:
                 return args
+    elif args.operation == 'remove':
+        if not args.name:
+            parser.error('the following arguments are required: -n/--name')
+        elif not args.start:
+            parser.error('the following arguments are required: -s/--start')
+        elif not args.finish:
+            parser.error('the following arguments are required: -f/--finish')
+        else:
+            return args
+    elif args.operation == 'refresh':
+        return args
     else:
         return args
 
@@ -93,6 +110,9 @@ def howToUse():
     print('\n\tRemove dates from Employee\'s calendar including older than today...')
     print('\t\tpython .\\assets\\js\\rota\\team\\_helper.py -n Employee -o remove -s 2024-3-1 -f 2024-3-31 -c')
 
+    print('\n\tRebuild the members.js file based on js files in the members folder...')
+    print('\t\tpython .\\assets\\js\\rota\\team\\_helper.py -o refresh')
+
 
 def logMessage(args, logLevel, message):
     printMessage = False
@@ -106,7 +126,7 @@ def logMessage(args, logLevel, message):
 
 
 def readCalendarEvents(args):
-    memberName = args.name[0].replace(" ", "")  # remove spaces from the name
+    memberName = args.name[0]
     filePathTeamMember = PATH_TO_TEAM_MEMBERS_DIRECTORY + memberName + '.js'
     if os.path.exists(filePathTeamMember):
         with open(filePathTeamMember, 'r') as f:
@@ -142,10 +162,10 @@ def formatStringForJsToJson(input):
 
 
 def writeCalendarEvents(args, calendarEventList):
-    memberName = args.name[0].replace(" ", "")  # remove spaces from the name
+    memberName = args.name[0]
     filePathTeamMember = PATH_TO_TEAM_MEMBERS_DIRECTORY + memberName + '.js'
     d = {
-        'functionName': 'getCalendarEventsFor' + memberName,
+        'functionName': 'getCalendarEventsFor' + memberName.replace(" ", ""),  # remove spaces from the member name so that js function remains correct
         'calendarEventList': json.dumps([event.__dict__ for event in calendarEventList])
     }
     with open(PATH_TO_TEAM_MEMBER_TEMPLATE, 'r') as f:
@@ -281,7 +301,7 @@ def refreshMembersJS(args):
         for f in files:
             with open(PATH_TO_TEAM_MEMBERS_DIRECTORY + f.replace('\'', ''), 'r') as r:
                 w.write('\n\n' + r.read())
-        logMessage(args, LogLevel.Verbose, 'Wrote MembersJS.')
+        logMessage(args, LogLevel.Info if args.operation == 'refresh' else LogLevel.Verbose, 'Wrote MembersJS.')
 
 
 # Generate calendar events based on the parameters supplied...
@@ -290,11 +310,14 @@ def main():
     try:
         args = setupArgParse()
         logMessage(args, LogLevel.Verbose, 'Arguments : {}'.format(args))
-        list = readCalendarEvents(args)
-        if args.operation == 'add':
-            addEvents(args, list)
-        elif args.operation == 'remove':
-            removeEvents(args, list)
+        if args.operation == 'refresh':
+            refreshMembersJS(args)
+        else:
+            list = readCalendarEvents(args)
+            if args.operation == 'add':
+                addEvents(args, list)
+            elif args.operation == 'remove':
+                removeEvents(args, list)
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         if not (exc_type == SystemExit and exc_value.code == 0):
