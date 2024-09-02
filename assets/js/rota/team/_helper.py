@@ -7,6 +7,7 @@ import re
 import sys
 import string
 import types
+from pathlib import Path
 
 
 def getExecutingAssemblyPath():
@@ -302,6 +303,59 @@ def refreshMembersJS(args):
             with open(PATH_TO_TEAM_MEMBERS_DIRECTORY + f.replace('\'', ''), 'r') as r:
                 w.write('\n\n' + r.read())
         logMessage(args, LogLevel.Info if args.operation == 'refresh' else LogLevel.Verbose, 'Wrote MembersJS.')
+    analyzeMembersWorkDays(args)
+
+
+def analyzeMembersWorkDays(args):
+    logMessage(args, LogLevel.Info, '')
+    logMessage(args, LogLevel.Info, 'Workdays for all the members')
+    logMessage(args, LogLevel.Info, '****************************')
+    result = [
+        ['Member','Working Days', 'Holidays on Working Days'],
+    ]
+    files = ['\'' + f + '\'' for f in os.listdir(PATH_TO_TEAM_MEMBERS_DIRECTORY) if os.path.isfile(PATH_TO_TEAM_MEMBERS_DIRECTORY + '/' + f) and f.endswith('.js') and f != MEMBERS_JS_FILENAME]
+    for f in files:
+        with open(PATH_TO_TEAM_MEMBERS_DIRECTORY + f.replace('\'', ''), 'r') as r:
+            content = r.read()
+            daysWorked = countLinesWithDateIn2024(content)
+            holidaysOnWorkday = countHolidaysOnWorkday(content)
+            result.append([f.replace('.js', ''), 
+                           daysWorked,
+                           '{} - {}'.format(holidaysOnWorkday[0], ', '.join(holidaysOnWorkday[1]))])
+    col_widths = [max(len(str(item)) for item in column) for column in zip(*result)]
+    result.insert(1, ['-' * count for count in col_widths])
+    for row in result:
+        logMessage(args, LogLevel.Info, " | ".join(f"{str(item).ljust(width)}" for item, width in zip(row, col_widths)))
+
+
+def countLinesWithDateIn2024(content):
+    count = 0
+    lines = content.splitlines()
+    for line in lines:
+        stripped_line = line.lstrip()
+        if stripped_line.startswith("{ date: '2024-"):
+            count += 1
+    return count
+
+
+def countHolidaysOnWorkday(content):
+    matchedDates = []
+    count = 0
+    dates = getHolidayDates()
+    for date in dates:
+        if content.find(date) == -1:
+            matchedDates.append(date)
+            count += 1
+    return [count, matchedDates]
+
+
+def getHolidayDates():
+    # Regular expression to match dates in the format 'YYYY-MM-DD'
+    date_pattern = r"\{ date: '(\d{4}-\d{2}-\d{2})', name: '[^']*' \}"
+    with open(Path(PATH_TO_TEAM_DIRECTORY).parent / 'holidays.js', 'r') as file:
+        contents = file.read()
+        dates = re.findall(date_pattern, contents)  # Find all matches in the contents
+        return dates
 
 
 # Generate calendar events based on the parameters supplied...
@@ -322,7 +376,7 @@ def main():
         exc_type, exc_value, exc_traceback = sys.exc_info()
         if not (exc_type == SystemExit and exc_value.code == 0):
             logMessage(args, LogLevel.Error, "An exception occurred. Exception Type : {}, Value : {}\nTraceback : {}".format(exc_type, exc_value, exc_traceback))
-        howToUse();
+        howToUse()
     finally:
         logMessage(args, LogLevel.Verbose, '------------------- done -------------------')
 
