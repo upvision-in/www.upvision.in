@@ -223,7 +223,6 @@ function getCalendarEventsForPriyen() {
     { date: '2024-09-04', shift: '3-Night' },
     { date: '2024-09-05', shift: '3-Night' },
     { date: '2024-09-06', shift: '3-Night' },
-    { date: '2024-09-08', shift: '2-Afternoon' },
     { date: '2024-09-09', shift: '2-Afternoon' },
     { date: '2024-09-10', shift: '2-Afternoon' },
     { date: '2024-09-11', shift: '2-Afternoon' },
