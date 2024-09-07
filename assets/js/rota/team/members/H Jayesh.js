@@ -221,7 +221,6 @@ function getCalendarEventsForHJayesh() {
     { date: '2024-08-30', shift: '1-Morning' },
     { date: '2024-08-31', shift: '1-Morning' },
     { date: '2024-09-01', shift: '2-Afternoon' },
-    { date: '2024-09-02', shift: '2-Afternoon' },
     { date: '2024-09-03', shift: '2-Afternoon' },
     { date: '2024-09-04', shift: '2-Afternoon' },
     { date: '2024-09-05', shift: '2-Afternoon' },
