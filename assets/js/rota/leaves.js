@@ -44,5 +44,8 @@ function getLeaves() {
     { name: 'P Jayesh', leaveDate: '2024-11-01' },
     { name: 'H Jayesh', leaveDate: '2024-10-30' },
     { name: 'Priyen', leaveDate: '2024-11-04' },
+    { name: 'Vivek', leaveDate: '2024-11-01' },
+    { name: 'Vivek', leaveDate: '2024-11-04' },
+    { name: 'Vivek', leaveDate: '2024-11-05' },
   ];
 }
