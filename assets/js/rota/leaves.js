@@ -39,5 +39,10 @@ function getLeaves() {
     { name: 'Jay', leaveDate: '2024-06-19' },
     { name: 'Jay', leaveDate: '2024-06-20' },
     { name: 'Jay', leaveDate: '2024-06-21' },
+    { name: 'Vedant', leaveDate: '2024-10-29' },
+    { name: 'Vedant', leaveDate: '2024-10-30' },
+    { name: 'P Jayesh', leaveDate: '2024-11-01' },
+    { name: 'H Jayesh', leaveDate: '2024-10-30' },
+    { name: 'Priyen', leaveDate: '2024-11-04' },
   ];
 }
