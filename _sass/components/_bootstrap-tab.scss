@@ -1,0 +1,19 @@
+.nav-fill {
+    .nav-item {
+        .nav-link {
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: rgb(0, 123, 255);
+
+            &.active {
+                background: rgba(0, 0, 0, .01);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgb(255, 255, 255) 100%);
+            }
+
+            &:hover {
+                background-color: rgba(0, 0, 0, .02);
+            }
+        }
+    }
+}

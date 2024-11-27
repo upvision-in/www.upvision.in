@@ -118,6 +118,10 @@ nav.shrinked {
   
   .navbar .navbar-brand 
   {
+    &:hover, &:active, &:focus {
+      text-decoration: none;
+    }
+
     img {
       max-height: 60px;
       max-width: none;

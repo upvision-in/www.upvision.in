@@ -26,3 +26,18 @@
     left: 6px;
   }
 }
+
+.fullcalendar-year-compact {
+  min-height: 920px;  /* To fix the height issue when fullcalendar is loaded on bootstrap tab change */
+
+  .fc-multimonth-month {
+    padding: 8px 16px !important;  /* Reduced the padding on the month */
+
+    .fc-multimonth-title {
+      padding: 8px 0;  /* To fix the unnecessary height. Will bring down the overall size of the yearly calendar */
+    }
+    .fc-bg-event {
+      opacity: 1 !important;  /* To fix the color on the highlighted holidays */
+    }
+  }
+}
