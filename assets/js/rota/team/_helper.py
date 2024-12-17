@@ -355,7 +355,9 @@ def getHolidayDatesIn2024():
     with open(Path(PATH_TO_TEAM_DIRECTORY).parent / 'holidays.js', 'r') as file:
         contents = file.read()
         dates = re.findall(date_pattern, contents)  # Find all matches in the contents
-        return dates
+        #return dates
+        valid_dates = [date for date in dates if int(date.split('-')[1]) >= 4]  # Count dates after 1st April
+        return valid_dates
 
 
 # Generate calendar events based on the parameters supplied...
