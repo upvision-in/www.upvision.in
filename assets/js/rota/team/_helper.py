@@ -341,7 +341,7 @@ def countLinesWithDateIn2024(content):
 def countHolidaysOnWorkday(content):
     matchedDates = []
     count = 0
-    dates = getHolidayDates()
+    dates = getHolidayDatesIn2024()
     for date in dates:
         if content.find(date) == -1:
             matchedDates.append(date)
@@ -349,9 +349,9 @@ def countHolidaysOnWorkday(content):
     return [count, matchedDates]
 
 
-def getHolidayDates():
+def getHolidayDatesIn2024():
     # Regular expression to match dates in the format 'YYYY-MM-DD'
-    date_pattern = r"\{ date: '(\d{4}-\d{2}-\d{2})', name: '[^']*' \}"
+    date_pattern = r"\{ date: '(2024-\d{2}-\d{2})', \s*name: '[^']*'"
     with open(Path(PATH_TO_TEAM_DIRECTORY).parent / 'holidays.js', 'r') as file:
         contents = file.read()
         dates = re.findall(date_pattern, contents)  # Find all matches in the contents
