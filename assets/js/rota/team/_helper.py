@@ -227,7 +227,7 @@ def addEvents(args, list):
             daysCounter = calculateDaysCounter(args, startDate, weekends[0])
             while currentDate <= finishDate:
                 #if (daysCounter % (args.rotateWeeks * 7) == 0):
-                if currentDate.weekday() == 1 and (daysCounter % (args.rotateWeeks * 7) == 0):  # Today is the 4th+1 Tuesday - time to rotate weekends
+                if currentDate.weekday() == 1 and (daysCounter % (args.rotateWeeks * 7) == 0) and daysCounter > 0:  # Today is the 4th+1 Tuesday - time to rotate weekends
                     weekends.append(weekends.pop(0))  # rotate weekends
 
                 if (isDateAdded(currentDate, list)) == False:

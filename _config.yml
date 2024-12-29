@@ -10,7 +10,6 @@ title: UpVision Software Services
 email: info@upvision.in
 description: "UpVision - Empowering your business"
 baseurl: "" # for gh-pages
-url: "www.upvision.in" # the base hostname & protocol for your site, e.g. http://example.com
 author: upvision
 
 # Build settings

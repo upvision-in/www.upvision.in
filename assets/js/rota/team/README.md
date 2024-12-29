@@ -71,3 +71,21 @@ python .\assets\js\rota\team\_helper.py -o remove -s 2023-1-1 -f 2030-12-31 -c -
 python .\assets\js\rota\team\_helper.py -o remove -s 2023-1-1 -f 2030-12-31 -c -n Viral
 python .\assets\js\rota\team\_helper.py -o remove -s 2023-1-1 -f 2030-12-31 -c -n Vivek
 ```
+
+<br />
+
+### Scheduled for year 2025
+
+```
+python .\assets\js\rota\team\_helper.py -n Ankit -o add -i 1-Morning -l 2-Rotation -w 'sun-mon' -r 4 -s 2024-12-25 -f 2025-12-31
+python .\assets\js\rota\team\_helper.py -n Priyen -o add -i 1-Morning -l 2-Rotation -w 'fri-sat' -r 4 -s 2024-12-25 -f 2025-12-31
+python .\assets\js\rota\team\_helper.py -n Jay -o add -i 2-Afternoon -l 2-Rotation -w 'sun-mon' -r 4 -s 2024-12-25 -f 2025-12-31
+python .\assets\js\rota\team\_helper.py -n Shital -o add -i 2-Afternoon -l 2-Rotation -w 'fri-sat' -r 4 -s 2024-12-25 -f 2025-12-31
+python .\assets\js\rota\team\_helper.py -n "P Jayesh" -o add -i 2-Afternoon -l 2-Rotation -w 'tue-wed' -r 4 -s 2024-12-24 -f 2025-12-31
+
+python .\assets\js\rota\team\_helper.py -o add -i 2-Afternoon -l 1-Basic -s 2024-12-30 -f 2025-12-31 -n Vedant
+
+python .\assets\js\rota\team\_helper.py -o add -i 3-Night -l 1-Basic -s 2024-12-30 -f 2025-12-31 -n Viral
+python .\assets\js\rota\team\_helper.py -o add -i 3-Night -l 1-Basic -s 2024-12-27 -f 2025-12-31 -n Vivek
+python .\assets\js\rota\team\_helper.py -o add -i 3-Night -l 1-Basic -s 2024-12-25 -f 2025-12-31 -n "H Jayesh"
+```

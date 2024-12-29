@@ -1,8 +1,6 @@
 source "https://rubygems.org"
-gem "jekyll", "4.3.2"
-gem 'jekyll-sitemap'
-gem 'jekyll-seo-tag'
-gem 'scss_lint'
-gem "kramdown-parser-gfm"
-gem "wdm"
-gem "webrick"
+gem "jekyll", "3.10.0"
+gem "jekyll-sitemap", "1.4.0"
+gem "jekyll-seo-tag", "2.8.0"
+gem "kramdown-parser-gfm", "1.1.0"
+gem "scss_lint"
