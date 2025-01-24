@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initCalender();
   initTimezoneSelectList();
   initMemberCheckboxes();
@@ -32,12 +32,12 @@ function initCalender() {
     customButtons: {
       exportButton: {
         text: 'Export',
-        click: function() {
+        click: function () {
           //console.log('export data to csv...!');
           if (events != null) {
             let csvContent = 'data:text/csv;charset=utf-8,'
-             + 'Shift,Member,Start,End,OnLeave,PublicHoliday\n'
-             + events.map((e) => e.shift + ',' + e.member + ',' + e.start + ',' + e.end + ',' + (e.onLeave ? 'Yes' : '') + ',' + (e.onHoliday ? 'Yes' : '')).join('\n');
+              + 'Shift,Member,Start,End,OnLeave,PublicHoliday\n'
+              + events.map((e) => e.shift + ',' + e.member + ',' + e.start + ',' + e.end + ',' + (e.onLeave ? 'Yes' : '') + ',' + (e.onHoliday ? 'Yes' : '')).join('\n');
             data = encodeURI(csvContent);
             link = document.createElement('a');
             link.setAttribute('href', data);
@@ -67,7 +67,7 @@ function initCalender() {
       listWeekly: { type: 'listWeek', buttonText: 'List (Week)' },
       listDaily: { type: 'listDay', buttonText: 'List (Today)' }
     },
-    eventDidMount: function(info) {
+    eventDidMount: function (info) {
       tippy(info.el, {
         content: info.event.extendedProps.onHoliday ? 'On Public Holiday' : info.event.extendedProps.member + ' (' + info.event.extendedProps.shift + ')' + (info.event.extendedProps.onLeave ? ' - On Leave' : '') + (info.event.extendedProps.onAlternateWorkShift ? ' - On Alternate Shift' : info.event.extendedProps.onAlternateWorkday ? ' - On Alternate Workday' : ''),
         placement: 'top',
@@ -131,6 +131,7 @@ function getMembers() {
       { active: 1, name: 'Ankit', backgroundColor: '#b5e2fa', textColor: '#000000' },
       { active: 1, name: 'Jay', backgroundColor: '#eddea4', textColor: '#000000' },
       { active: 1, name: 'Vedant', backgroundColor: '#f7a072', textColor: '#000000' },
+      { active: 1, name: 'Parag', backgroundColor: '#b699f4', textColor: '#000000' },
       { active: 1, name: 'Priyen', backgroundColor: '#f28482', textColor: '#000000' },
       { active: 1, name: 'Shital', backgroundColor: '#f6bd60', textColor: '#000000' },
       { active: 1, name: 'H Jayesh', backgroundColor: '#f5cac3', textColor: '#000000' },
@@ -170,7 +171,7 @@ function getMemberDetails() {
   var alternateWorkdays = getAlternateWorkdays();
   var members = getMembers();
 
-  memberNames.forEach ((memberName) => {
+  memberNames.forEach((memberName) => {
     var member = members.filter((m) => m.name === memberName)[0];
     if (member.active) {
       memberDetails.push({
@@ -183,7 +184,7 @@ function getMemberDetails() {
       });
     }
   });
-  
+
   return memberDetails;
 }
 
