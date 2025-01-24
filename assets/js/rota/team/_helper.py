@@ -317,7 +317,7 @@ def analyzeMembersWorkDays(args):
     for f in files:
         with open(PATH_TO_TEAM_MEMBERS_DIRECTORY + f.replace('\'', ''), 'r') as r:
             content = r.read()
-            daysWorked = countLinesWithDateIn2024(content)
+            daysWorked = countLinesWithDateIn2025(content)
             holidaysOnWorkday = countHolidaysOnWorkday(content)
             result.append([f.replace('.js', ''), 
                            daysWorked,
@@ -328,12 +328,15 @@ def analyzeMembersWorkDays(args):
         logMessage(args, LogLevel.Info, " | ".join(f"{str(item).ljust(width)}" for item, width in zip(row, col_widths)))
 
 
-def countLinesWithDateIn2024(content):
+def countLinesWithDateIn2025(content):
+    return countLinesWithDateInYear(2025, content)
+
+def countLinesWithDateInYear(year, content):
     count = 0
     lines = content.splitlines()
     for line in lines:
         stripped_line = line.lstrip()
-        if stripped_line.startswith("{ date: '2024-"):
+        if stripped_line.startswith("{ date: '" + str(year) + "-"):
             count += 1
     return count
 
@@ -341,7 +344,7 @@ def countLinesWithDateIn2024(content):
 def countHolidaysOnWorkday(content):
     matchedDates = []
     count = 0
-    dates = getHolidayDatesIn2024()
+    dates = getHolidayDatesIn2025()
     for date in dates:
         if content.find(date) == -1:
             matchedDates.append(date)
@@ -349,9 +352,12 @@ def countHolidaysOnWorkday(content):
     return [count, matchedDates]
 
 
-def getHolidayDatesIn2024():
+def getHolidayDatesIn2025():
+    return getHolidayDatesInYear(2025)
+
+def getHolidayDatesInYear(year):
     # Regular expression to match dates in the format 'YYYY-MM-DD'
-    date_pattern = r"\{ date: '(2024-\d{2}-\d{2})', \s*name: '[^']*'"
+    date_pattern = r"\{ date: '(" + str(year) + r"-\d{2}-\d{2})', \s*name: '[^']*'"
     with open(Path(PATH_TO_TEAM_DIRECTORY).parent / 'holidays.js', 'r') as file:
         contents = file.read()
         dates = re.findall(date_pattern, contents)  # Find all matches in the contents
