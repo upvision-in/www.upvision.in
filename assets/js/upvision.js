@@ -46,7 +46,33 @@
         });
     }
 
+    function SetupScrollToSection() {
+        $(document).ready(function () {
+            if (window.location.hash) {  // Check if the URL contains an anchor (hash)
+                setTimeout(ScrollToSection(window.location.hash, true), 500);
+            }
+        });
+        $(".job").click(function () {
+            const sectionId = $(this).attr('data-scroll-to-section');
+            if (sectionId) {
+                ScrollToSection(sectionId);
+            }
+        });
+    }
 
+    function ScrollToSection(sectionId, isSectionGivenInUrl = false) {
+        const section = $(sectionId);
+        if (section) {
+            const offsetTop = section.offset().top;
+            const marginTop = parseInt(section.css('margin-top'), 10) || 0;
+            const paddingTop = parseInt(section.css('padding-top'), 10) || 0;
+            const navbarHeight = isSectionGivenInUrl ? ($navbar.is(':visible') ? $navbar.height() : 0) : 0;
+            const top = offsetTop - marginTop - paddingTop - navbarHeight;  // Calculate the top position including margin and padding
+
+            $('html, body').animate({ scrollTop: top }, 600);
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+    }
 
     function StickyMenu() {
         $window.scroll(function () {
@@ -172,6 +198,7 @@
         RegisterNavbarTogglerButtonClick();
         RegisterWowJs();
         ShuffleLettersInBanner();
+        SetupScrollToSection();
         //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
         slicklist.initialize();
