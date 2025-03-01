@@ -1,0 +1,34 @@
+---
+layout: page_layout
+title: WhatsApp Link Generator
+permalink: /utilities/whatsapp-link-generator
+description: Generate a WhatsApp link for a phone number so we can quickly chat with the number without adding them to our contact list.
+---
+
+<div class="container">
+    <h3 class="pt-3">WhatsApp Link Generator</h3>
+    <p>{{description}}</p>
+    <p>Enter a phone number (no country code):</p>
+    <input type="text" id="countryCode" placeholder="Country Code" style="width: 40px; text-align: right;" value="+91" />
+    <input type="text" id="phoneNumber" placeholder="Phone number" oninput="generateLink()" />
+
+    <p id="linkContainer" style="display:none; margin-top: 10px;">
+        <a id="whatsAppLink" href="" target="_blank">Click here to chat on WhatsApp</a>
+    </p>
+
+    <script>
+        function generateLink() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const linkContainer = document.getElementById('linkContainer');
+            const whatsAppLink = document.getElementById('whatsAppLink');
+
+            if (phoneNumber) {
+                const url = `https://wa.me/+91${phoneNumber}`;
+                whatsAppLink.href = url;  // Set the link href attribute
+                linkContainer.style.display = 'block';  // Make the link visible
+            } else {
+                linkContainer.style.display = 'none';  // If no phone number entered, hide the link container
+            }
+        }
+    </script>
+</div>

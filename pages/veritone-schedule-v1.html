@@ -14,10 +14,10 @@ description: UpVision Team Schedule.
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.9/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment-timezone@6.1.9/index.global.min.js'></script>
-<script src="assets/js/rota/alternateWorkdays.js"></script>
-<script src="assets/js/rota/holidays.js"></script>
-<script src="assets/js/rota/leaves.js"></script>
-<script src="assets/js/rota/rota.v1.js"></script>
+<script src="{{ '/assets/js/rota/alternateWorkdays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/holidays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/leaves.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/rota.v1.js' | relative_url }}"></script>
 
 <section class="veritone-schedule pb-4">
     <section>
@@ -43,7 +43,7 @@ description: UpVision Team Schedule.
                         <option value="America/Denver">UTC -7 (Denver)</option>
                         <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
                     </select>
-                    <a class="ml-4" target="_blank" href="/public-holidays">
+                    <a class="ml-4" target="_blank" href="{{ '/public-holidays' | relative_url }}">
                         <i class="fas fa-external-link-square-alt"></i>
                         Public Holidays
                     </a>

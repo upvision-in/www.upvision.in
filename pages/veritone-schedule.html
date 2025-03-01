@@ -5,11 +5,11 @@ permalink: /veritone-schedule
 description: UpVision Team Schedule.
 ---
 
-<script src="assets/js/rota/team/members.js"></script>
-<script src="assets/js/rota/alternateWorkdays.js"></script>
-<script src="assets/js/rota/holidays.js"></script>
-<script src="assets/js/rota/leaves.js"></script>
-<script src="assets/js/rota/rota.js"></script>
+<script src="{{ '/assets/js/rota/team/members.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/alternateWorkdays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/holidays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/leaves.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/rota.js' | relative_url }}"></script>
 
 <section class="veritone-schedule pb-4">
     <section>
@@ -35,7 +35,7 @@ description: UpVision Team Schedule.
                         <option value="America/Denver">UTC -7 (Denver)</option>
                         <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
                     </select>
-                    <a target="_blank" href="/public-holidays">
+                    <a target="_blank" href="{{ '/public-holidays' | relative_url }}">
                         <i class="fas fa-external-link-square-alt"></i> Public Holidays
                     </a>
                 </div>
