@@ -31,6 +31,10 @@
         -moz-transform: translateX(-50%) translateY(-50%);
         -webkit-transform: translateX(-50%) translateY(-50%);
         transform: translateX(-50%) translateY(-50%);
+
+        &::-webkit-media-controls-picture-in-picture-button {
+            display: none !important;
+        }
     }
 
     .container, .container-fluid {
