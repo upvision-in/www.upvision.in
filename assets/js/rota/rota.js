@@ -138,6 +138,7 @@ function getMembers() {
       { active: 1, name: 'P Jayesh', backgroundColor: '#9eb7e5', textColor: '#000000' },
       { active: 1, name: 'Viral', backgroundColor: '#e8e5da', textColor: '#000000' },
       { active: 1, name: 'Vivek', backgroundColor: '#cdc392', textColor: '#000000' },
+      { active: 1, name: 'Dhruvi', backgroundColor: '#eddea4', textColor: '#000000' },
     ];
   }
   return members;
