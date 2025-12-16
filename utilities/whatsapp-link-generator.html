@@ -18,7 +18,7 @@ description: Generate a WhatsApp link for a phone number so we can quickly chat 
 
     <script>
         function generateLink() {
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim().replace(/\D/g, '');
             const linkContainer = document.getElementById('linkContainer');
             const whatsAppLink = document.getElementById('whatsAppLink');
 
