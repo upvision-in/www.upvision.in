@@ -32,6 +32,7 @@ function getHolidays() {
     { date: '2026-11-11', name: 'Bhai Dooj',        description: 'Celebrating Sibling Bond',   wiki: 'https://en.wikipedia.org/wiki/Bhai_Dooj' },
     { date: '2027-01-14', name: 'Uttarayan',        description: 'Kite Flying Festival',       wiki: 'https://en.wikipedia.org/wiki/Uttarayana' },
     { date: '2027-01-26', name: 'Republic Day',     description: 'Indian Constitution Day',    wiki: 'https://en.wikipedia.org/wiki/Republic_Day_(India)' },
+    { date: '2027-03-23', name: 'Holi Dhuleti',     description: 'Festival of Colors',         wiki: 'https://en.wikipedia.org/wiki/Holi' },
   ];
 }
 
