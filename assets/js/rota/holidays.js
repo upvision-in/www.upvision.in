@@ -22,6 +22,16 @@ function getHolidays() {
     { date: '2025-10-23', name: 'Bhai Dooj',        description: 'Day after New Year (India)', wiki: 'https://en.wikipedia.org/wiki/Bhai_Dooj' },
     { date: '2026-01-14', name: 'Uttarayan',        description: 'Kite Flying Festival',       wiki: 'https://en.wikipedia.org/wiki/Uttarayana' },
     { date: '2026-01-26', name: 'Republic Day',                                                wiki: 'https://en.wikipedia.org/wiki/Republic_Day_(India)' },
+    { date: '2026-03-04', name: 'Holi Dhuleti',     description: 'Festival of Colors',         wiki: 'https://en.wikipedia.org/wiki/Holi' },
+    { date: '2026-08-15', name: 'Independence Day', description: 'National Independence',      wiki: 'https://en.wikipedia.org/wiki/Independence_Day_(India)' },
+    { date: '2026-08-28', name: 'Rakshabandhan',    description: 'Celebrating Brother-Sister Bond', wiki: 'https://en.wikipedia.org/wiki/Raksha_Bandhan' },
+    { date: '2026-09-04', name: 'Janmashtami',      description: 'Birth of Lord Krishna',      wiki: 'https://en.wikipedia.org/wiki/Krishna_Janmashtami' },
+    { date: '2026-10-20', name: 'Dusshera',         description: 'Victory of good over evil',  wiki: 'https://en.wikipedia.org/wiki/Vijayadashami' },
+    { date: '2026-11-08', name: 'Diwali',           description: 'Festival of Lights',         wiki: 'https://en.wikipedia.org/wiki/Diwali' },
+    { date: '2026-11-10', name: 'New Year (India)', description: 'Traditional Hindu New Year', wiki: 'https://en.wikipedia.org/wiki/Indian_New_Year%27s_days' },
+    { date: '2026-11-11', name: 'Bhai Dooj',        description: 'Celebrating Sibling Bond',   wiki: 'https://en.wikipedia.org/wiki/Bhai_Dooj' },
+    { date: '2027-01-14', name: 'Uttarayan',        description: 'Kite Flying Festival',       wiki: 'https://en.wikipedia.org/wiki/Uttarayana' },
+    { date: '2027-01-26', name: 'Republic Day',     description: 'Indian Constitution Day',    wiki: 'https://en.wikipedia.org/wiki/Republic_Day_(India)' },
   ];
 }
 
