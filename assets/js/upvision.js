@@ -190,6 +190,14 @@
         });
     }
 
+    function DisableHyperlinks() {
+        $('a.disabled').removeAttr('href');
+
+        $(document).on('click', 'a.disabled', function (e) {
+            e.preventDefault();
+        });
+    }
+
     function initApplicationScripts() {
         StickyMenu();
         EnableTooltipsApplicationWide();
@@ -199,6 +207,7 @@
         RegisterWowJs();
         ShuffleLettersInBanner();
         SetupScrollToSection();
+        DisableHyperlinks();
         //ShowWindowSizeForMediaQueryToFindTriggerWidth();
         //FooterNavCollapsToggler();
         slicklist.initialize();
