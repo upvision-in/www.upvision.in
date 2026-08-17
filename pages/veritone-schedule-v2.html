@@ -1,0 +1,57 @@
+---
+layout: page_layout
+title: Veritone - UpVision Team Schedule
+permalink: /veritone-schedule-v2
+description: UpVision Team Schedule.
+---
+
+<script src="{{ '/assets/js/rota/team/members.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/alternateWorkdays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/holidays.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/leaves.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/rota/rota.js' | relative_url }}"></script>
+
+<section class="veritone-schedule pb-4">
+    <section>
+        <div class="container">
+            <h1 class="display-4 text-center">UpVision Team Schedule</h1>
+            <p class="text-center lead">
+                Team assignment for the 24/7 Global NOC support.
+            </p>
+        </div>
+    </section>
+    <section class="py-1">
+        <div class="container-fluid">
+            <div class="row header">
+                <div class="col-lg-6 col-md-4 col-sm-12 timezone pb-2">
+                    <span>Timezone : </span>
+                    <select id="time-zone-selector" class="mr-4">
+                        <option value="Asia/Kolkata">UTC +5:30 (India)</option>
+                        <option value="Asia/Jerusalem">UTC +2 (Israel)</option>
+                        <option value="Europe/Amsterdam">UTC +1 (Amsterdam)</option>
+                        <option value="UTC">UTC +0 (London)</option>
+                        <option value="America/New_York">UTC -5 (Miami / New York)</option>
+                        <option value="America/Chicago">UTC -6 (Chicago)</option>
+                        <option value="America/Denver">UTC -7 (Denver)</option>
+                        <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
+                    </select>
+                    <a target="_blank" href="{{ '/public-holidays' | relative_url }}">
+                        <i class="fas fa-external-link-square-alt"></i> Public Holidays
+                    </a>
+                </div>
+                <div class="col-lg-6 col-md-8 col-sm-12 members">
+                    <div class="row" style="width: 100%;">
+                        <div class="col-md-3 col-sm-12 selection">
+                            <button onclick="toggleMemberCheckboxes(true);"><i class="pe-1 fa-solid fa-check-double"></i>Select All</button>
+                            <button onclick="toggleMemberCheckboxes(false);"><i class="pe-1 fa-solid fa-eraser"></i>Unselect All</button>
+                        </div>
+                        <div class="col-md-9 col-sm-12">
+                            <ul id="members"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id='calendar'></div>
+        </div>
+    </section>
+</section>
