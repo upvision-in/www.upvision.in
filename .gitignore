@@ -1,9 +1,8 @@
 _site
 .sass-cache
+.jekyll-cache
 .jekyll-metadata
 .dockerignore
-Gemfile.lock
-*.lock
 .vscode/settings.json
 venv
 .DS_Store
