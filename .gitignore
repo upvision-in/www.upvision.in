@@ -6,3 +6,4 @@ Gemfile.lock
 *.lock
 .vscode/settings.json
 venv
+.DS_Store

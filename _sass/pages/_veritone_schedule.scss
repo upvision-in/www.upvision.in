@@ -7,7 +7,13 @@
 // veritone-schedule styles...
 .veritone-schedule {
     .container-fluid {
-        div { font-size: 12px; }
+        // Blanket 12px for the original (v1) board. Everything inside
+        // .noc-dashboard is excluded: the redesigned board sets its own type
+        // scale, and this selector is (0,2,1) — specific enough to beat the
+        // single-class rules in pages/veritone-schedule.html, which flattened
+        // that scale to a uniform 12px. v1 has no .noc-dashboard, so it is
+        // unaffected.
+        div:not(.noc-dashboard *) { font-size: 12px; }
 
         .header {
             display: flex;

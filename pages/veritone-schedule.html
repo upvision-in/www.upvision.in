@@ -5,53 +5,3118 @@ permalink: /veritone-schedule
 description: UpVision Team Schedule.
 ---
 
-<script src="{{ '/assets/js/rota/team/members.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/rota/alternateWorkdays.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/rota/holidays.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/rota/leaves.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/rota/rota.js' | relative_url }}"></script>
+<!-- holidays.js first: veritone-schedule.js reads getHolidays() from it. -->
+<script type="application/javascript" src="{{ '/assets/js/rota/holidays.js' | relative_url }}"></script>
+<script type="application/javascript" src="{{ '/assets/js/veritone-schedule.js' | relative_url }}"></script>
 
 <section class="veritone-schedule pb-4">
     <section>
         <div class="container">
-            <h1 class="display-4 text-center">UpVision Team Schedule</h1>
-            <p class="text-center lead">
-                Team assignment for the 24/7 Global NOC support.
-            </p>
+            <h3 class="text-center">UpVision Team Schedule</h3>
         </div>
     </section>
+
     <section class="py-1">
-        <div class="container-fluid">
-            <div class="row header">
-                <div class="col-lg-6 col-md-4 col-sm-12 timezone pb-2">
-                    <span>Timezone : </span>
-                    <select id="time-zone-selector" class="mr-4">
-                        <option value="Asia/Kolkata">UTC +5:30 (India)</option>
-                        <option value="Asia/Jerusalem">UTC +2 (Israel)</option>
-                        <option value="Europe/Amsterdam">UTC +1 (Amsterdam)</option>
-                        <option value="UTC">UTC +0 (London)</option>
-                        <option value="America/New_York">UTC -5 (Miami / New York)</option>
-                        <option value="America/Chicago">UTC -6 (Chicago)</option>
-                        <option value="America/Denver">UTC -7 (Denver)</option>
-                        <option value="America/Los_Angeles">UTC -8 (Los Angeles)</option>
-                    </select>
-                    <a target="_blank" href="{{ '/public-holidays' | relative_url }}">
-                        <i class="fas fa-external-link-square-alt"></i> Public Holidays
-                    </a>
+        <div class="container-fluid noc-dashboard">
+
+            <!-- ================= Controls panel : upcoming holidays + legend on top,
+                 date / search / timezone pills underneath, in one card ================= -->
+            <div class="noc-panel">
+                <div class="noc-subrow">
+                    <div class="noc-holidays">
+                        <div class="noc-holidays-label">Upcoming Holidays</div>
+                        <div class="noc-holidays-list" id="noc-holidays-list"></div>
+                    </div>
+                    <div class="noc-legend" id="noc-legend"></div>
                 </div>
-                <div class="col-lg-6 col-md-8 col-sm-12 members">
-                    <div class="row" style="width: 100%;">
-                        <div class="col-md-3 col-sm-12 selection">
-                            <button onclick="toggleMemberCheckboxes(true);"><i class="pe-1 fa-solid fa-check-double"></i>Select All</button>
-                            <button onclick="toggleMemberCheckboxes(false);"><i class="pe-1 fa-solid fa-eraser"></i>Unselect All</button>
+
+                <div class="noc-toprow">
+                    <!-- The date is also the time control: the element that
+                         states when we are is the one that changes it, so there
+                         is no second date on the row to disagree with it — and
+                         when it reads a date that isn't today, that IS the
+                         warning that the board is not live. -->
+                    <div class="noc-date-block">
+                        <button type="button" class="noc-date" id="noc-date">&nbsp;</button>
+                        <button type="button" class="noc-date-open" id="noc-date-open"
+                                data-tip="Pick a date and time to see who will be working then">
+                            <i class="fas fa-calendar-day"></i>
+                        </button>
+
+                        <!-- Native date field: it brings typed entry and proper
+                             keyboard navigation of the calendar, which a hand-built
+                             grid does not. Time is a fixed list because every shift
+                             boundary in the data falls on :00 or :30, so half-hour
+                             steps already resolve finer than the schedule does. -->
+                        <div class="noc-date-picker" id="noc-date-picker" hidden>
+                            <input type="date" class="noc-date-input" id="noc-date-input">
+                            <select class="noc-date-select" id="noc-time-select"></select>
+                            <span class="noc-date-echo" id="noc-date-echo"></span>
+                            <span class="noc-date-holiday" id="noc-date-holiday" hidden></span>
+                            <button type="button" class="noc-date-reset" id="noc-date-reset"
+                                    data-tip="Back to now">
+                                <i class="fas fa-undo"></i>
+                            </button>
                         </div>
-                        <div class="col-md-9 col-sm-12">
-                            <ul id="members"></ul>
-                        </div>
+                    </div>
+
+                    <div class="noc-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="noc-search-input" placeholder="Search name or team...">
+                    </div>
+
+                    <div class="noc-tz-block">
+                        <div class="noc-tz-pills" id="noc-tz-pills"></div>
                     </div>
                 </div>
             </div>
-            <div id='calendar'></div>
+
+        </div>
+    </section>
+
+    <!-- ================= Who is on, right now and shortly. Grouped by shift in
+         both halves: two shifts overlap for part of the day, and people come
+         online in shift-sized batches, so the shift is what makes a list of
+         names mean something. ================= -->
+    <section class="py-1">
+        <div class="container-fluid noc-dashboard">
+            <div class="noc-presence">
+                <div class="noc-presence-col">
+                    <div class="noc-presence-head">
+                        <span class="noc-presence-title">Online now</span>
+                        <span class="noc-presence-note" id="noc-online-count"></span>
+                    </div>
+                    <div id="noc-online-body"></div>
+                </div>
+
+                <div class="noc-presence-col">
+                    <div class="noc-presence-head">
+                        <span class="noc-presence-title">Up next</span>
+                        <span class="noc-presence-note" id="noc-soon-count"></span>
+                    </div>
+                    <div id="noc-soon-body"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-1">
+        <div class="container-fluid noc-dashboard">
+
+            <!-- ================= Roster : members grouped into shift lanes.
+                 No 24h timeline down here — that is what "Timezones at a Glance"
+                 is for, and repeating it per member said the same thing 11 times. -->
+            <div class="noc-board">
+                <div class="noc-board-inner noc-board-inner--roster">
+                    <table class="noc-table noc-table--roster">
+                        <colgroup>
+                            <col class="noc-col-member">
+                            <col class="noc-col-team">
+                            <col class="noc-col-when">
+                            <col class="noc-col-when">
+                            <col class="noc-col-week">
+                        </colgroup>
+                        <thead>
+                            <tr class="noc-roster-head">
+                                <th>Member</th>
+                                <th>Team</th>
+                                <th>Last shift</th>
+                                <th>Next up</th>
+                                <th id="noc-roster-week-head">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody id="noc-tbody">
+                            <!-- lane headers + member rows are injected here by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-1">
+        <div class="container-fluid noc-dashboard">
+
+            <!-- ================= Timezone comparison : hour reference for every timezone.
+                 Each row carries its own local-time chip pinned to the "now" line, so
+                 there is no floating callout above the board and no headroom to reserve. -->
+            <div class="noc-board">
+                <h2 class="noc-tzcmp-title">Timezones at a Glance</h2>
+                <div class="noc-board-inner noc-board-inner--tzcmp">
+                    <table class="noc-table noc-table--tzcmp">
+                        <colgroup>
+                            <col class="noc-col-tzcmp">
+                            <col class="noc-col-timeline">
+                        </colgroup>
+                        <tbody id="noc-tzcmp-tbody">
+                            <!-- one row per timezone is injected here by JS -->
+                        </tbody>
+                    </table>
+                    <div class="noc-now-overlay" id="noc-tzcmp-now-overlay">
+                        <div class="noc-now-line" id="noc-tzcmp-now-line"></div>
+                        <div class="noc-ref-line"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 </section>
+
+<style>
+    /* ==================================================================
+       Design tokens
+       ================================================================== */
+    /* ==================================================================
+       Type scale.
+
+       On :root rather than .noc-dashboard because the tooltip theme renders into
+       <body>, outside the dashboard, and has to read the same steps.
+
+       Six steps, ~1.15-1.25x apart so each one is visibly a step. Before this
+       the page had SIXTEEN sizes, seven of them inside a 1.6px band — that is
+       drift, not hierarchy: each value had been chosen in isolation. Anything
+       new belongs on a step, not between two.
+       ================================================================== */
+    :root {
+        --fs-title: 1.05rem;   /* 16.8px  section headings */
+        --fs-lead: 0.95rem;    /* 15.2px  the page date */
+        --fs-name: 0.82rem;    /* 13.1px  a person's name, wherever it appears */
+        --fs-body: 0.75rem;    /* 12px    values, group headings, controls */
+        --fs-meta: 0.68rem;    /* 10.9px  status, relative times, counts, tags */
+        --fs-micro: 0.6rem;    /* 9.6px   hour labels, day letters, chips */
+    }
+
+    .noc-dashboard {
+        --nb-phase-night: #95B3D7;
+        --nb-phase-morning: #d6f6ff;
+        --nb-phase-day: #ffffef;
+        --nb-phase-evening: #d6f6ff;
+        --nb-now-line: #292929;
+        --nb-good: #0ca30c;
+        --nb-good-light: #ddf3dd;
+        --nb-good-dark: #087a08;
+        --nb-warning: #fab219;
+        --nb-warning-light: #fdecc8;
+        --nb-warning-dark: #c98500;
+        --nb-muted-light: #ececea;
+        --nb-muted-dark: #6b6a65;
+        --nb-weekend: #4FA3D1;
+        --nb-weekend-light: #dcf0fb;
+        --nb-weekend-dark: #2e6e9e;
+        --nb-leave: #2E9CA6;
+        --nb-leave-light: #dcf3f1;
+        --nb-leave-dark: #1f6e76;
+        --nb-holiday: #9B59B6;
+        --nb-holiday-light: #f0e1f5;
+        --nb-holiday-dark: #7d3c98;
+        --nb-not-scheduled: #E08A8A;
+        --nb-not-scheduled-light: #fbe4e2;
+        --nb-not-scheduled-dark: #b85450;
+        --nb-accent: #2a78d6;
+        --nb-surface: #ffffff;
+        --nb-page: #f9f9f7;
+        /* Controls panel sits a shade below the boards so it reads as the seam
+           between "timezones at a glance" above and "who's on" below. Its own
+           controls invert to white to stay legible against it. */
+        --nb-panel: #f1f0ea;
+        --nb-panel-raised: #ffffff;
+        --nb-border: #e1e0d9;
+        --nb-text-primary: #0b0b0b;
+        --nb-text-secondary: #52514e;
+        --nb-text-muted: #898781;
+        /* Measured, not estimated: widest rendered content plus padding.
+           member  = avatar 32 + gap 10 + "Working now" 80 + pad 10
+           when    = "Yesterday, 12:30 pm MDT" at --fs-body, tabular + bold
+           team    = two pills side by side, for anyone on two teams */
+        --nb-col-member: 145px;
+        --nb-col-team: 170px;
+        --nb-col-when: 200px;
+        --nb-col-week: 330px;
+        --nb-col-tzcmp: 170px;
+        /* A lane row's own left border (4px) + left padding (12px). Backed out
+           of the lane label width so its timeline lines up with the chart's. */
+        --nb-lane-inset: 16px;
+
+        width: 100%;
+        font-family: 'Karla', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: var(--fs-body);
+        color: var(--nb-text-primary);
+    }
+
+    /* The site stylesheet sets font-size on the `div` TYPE — `html,body,p,div,…
+       { font-size:16px }` — and a direct rule beats inheritance, so every
+       container div here would otherwise be reset to 16px no matter what its
+       parent says. Anything holding text directly (the legend items) showed it.
+
+       :where() is what makes this safe: it contributes no specificity, so this
+       rule stays at (0,0,1) — identical to the reset, winning only because it
+       comes later — and still loses to every single-class rule below. Without
+       :where() it would be (0,1,1) and would override the whole type scale. */
+    :where(.noc-dashboard) div {
+        font-size: inherit;
+    }
+
+    .noc-dashboard .card-like {
+        background: var(--nb-surface);
+        border: 1px solid var(--nb-border);
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(11, 11, 11, 0.06);
+    }
+
+    /* ==================================================================
+       Controls panel : one card holding the holidays/legend row on top and
+       the date / search / timezone-pill row underneath.
+       ================================================================== */
+    .noc-panel {
+        background: var(--nb-panel);
+        border: 1px solid var(--nb-border);
+        border-radius: 10px;
+        box-shadow: inset 0 1px 2px rgba(11, 11, 11, 0.04);
+        overflow: hidden;
+    }
+
+    .noc-toprow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 16px;
+        border-top: 1px solid var(--nb-border);
+    }
+
+    /* One row throughout: the heading and the pair of selects occupy the same
+       slot and swap, so nothing below ever shifts down. */
+    .noc-date-block {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: none;
+    }
+
+    .noc-date {
+        font-size: var(--fs-lead);
+        font-weight: 700;
+        white-space: nowrap;
+        text-align: left;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        color: var(--nb-text-primary);
+    }
+
+    .noc-date:hover,
+    .noc-date-open:hover {
+        color: var(--nb-accent);
+    }
+
+    /* The discoverable way in. Clicking the date does the same thing, but nothing
+       about a date suggests it is clickable — this does, and its tooltip says
+       what it is for. */
+    .noc-date-open {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: 1px solid var(--nb-border);
+        border-radius: 50%;
+        background: var(--nb-panel-raised);
+        color: var(--nb-text-muted);
+        font-size: var(--fs-body);
+        cursor: pointer;
+    }
+
+    .noc-date-picker {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Accent-bordered, because a board answering for a time you picked rather
+       than for now has to look different at a glance. */
+    .noc-date-select {
+        font-family: inherit;
+        font-size: var(--fs-body);
+        font-weight: 600;
+        padding: 3px 6px;
+        border: 1px solid var(--nb-accent);
+        border-radius: 6px;
+        background: var(--nb-panel-raised);
+        color: var(--nb-text-primary);
+        cursor: pointer;
+    }
+
+    .noc-date-input {
+        font-family: inherit;
+        font-size: var(--fs-body);
+        font-weight: 600;
+        padding: 3px 6px;
+        border: 1px solid var(--nb-accent);
+        border-radius: 6px;
+        background: var(--nb-panel-raised);
+        color: var(--nb-text-primary);
+    }
+
+    /* The chosen instant on team time. Muted, because it is a restatement rather
+       than a control. */
+    .noc-date-echo {
+        font-size: var(--fs-body);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--nb-text-secondary);
+        white-space: nowrap;
+    }
+
+    /* Recovers the one thing the hand-built grid could do that a native calendar
+       cannot: tell you the day you just picked is a company holiday. */
+    .noc-date-holiday {
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 20px;
+        background: var(--nb-holiday-light);
+        color: var(--nb-holiday-dark);
+        white-space: nowrap;
+    }
+
+    .noc-date-reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border: 1px solid var(--nb-accent);
+        border-radius: 50%;
+        background: var(--nb-panel-raised);
+        color: var(--nb-accent);
+        font-size: var(--fs-body);
+        cursor: pointer;
+    }
+
+    .noc-date-reset:hover {
+        background: var(--nb-accent);
+        color: #ffffff;
+    }
+
+    .noc-search {
+        position: relative;
+        flex: 1 1 220px;
+        max-width: 320px;
+    }
+
+    .noc-search i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--nb-text-muted);
+        font-size: var(--fs-body);
+    }
+
+    .noc-search input {
+        width: 100%;
+        padding: 7px 10px 7px 28px;
+        border: 1px solid var(--nb-border);
+        border-radius: 20px;
+        font-size: var(--fs-body);
+        background: var(--nb-panel-raised);
+    }
+
+    .noc-search input:focus {
+        outline: none;
+        border-color: var(--nb-accent);
+        background: var(--nb-surface);
+    }
+
+    .noc-tz-block {
+        flex: 1 1 420px;
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        justify-content: flex-end;
+    }
+
+    .noc-tz-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+    }
+
+    .noc-tz-pill {
+        border: 1px solid var(--nb-border);
+        background: var(--nb-panel-raised);
+        color: var(--nb-text-secondary);
+        font-size: var(--fs-body);
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .noc-tz-pill:hover {
+        background: #f0efec;
+    }
+
+    .noc-tz-pill.is-selected {
+        background: var(--nb-text-primary);
+        border-color: var(--nb-text-primary);
+        color: #ffffff;
+    }
+
+    /* --- controls panel, top row : upcoming holidays + legend --- */
+    .noc-subrow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 16px;
+    }
+
+    /* Sized to its content and never squeezed. It used to be `flex: 1 1 380px`
+       with `min-width: 0`, which let it shrink far below the ~674px three chips
+       and the label actually need — so instead of the row wrapping, the chips
+       stacked two and three deep. Now the block holds its width and the LEGEND
+       wraps to its own line when there isn't room for both, which degrades to
+       two clean lines instead of a ragged pile. */
+    .noc-holidays {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .noc-holidays-label {
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--nb-text-muted);
+        white-space: nowrap;
+        flex: none;
+    }
+
+    /* nowrap is what makes the rule above work: it gives the block a real
+       min-content width, so it can't be shrunk into stacking. */
+    .noc-holidays-list {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .noc-holiday-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--nb-panel-raised);
+        border: 1px solid var(--nb-border);
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: var(--fs-body);
+        white-space: nowrap;
+    }
+
+    .noc-holiday-chip .date {
+        font-weight: 700;
+    }
+
+    .noc-legend {
+        flex: 1 1 auto;
+        margin-left: auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        align-content: center;
+        gap: 12px;
+        font-size: var(--fs-body);
+        color: var(--nb-text-secondary);
+    }
+
+    .noc-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .noc-legend-swatch {
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+        display: inline-block;
+        flex: none;
+    }
+
+    /* A miniature of the real marker: vertical, because that is the only way the
+       "now" line is ever drawn, and capped with the same warm orb — which now
+       appears on both timelines, so the key can show it honestly. Static, like
+       the lane orbs; a key should never animate. */
+    .noc-legend-swatch.is-line {
+        position: relative;
+        width: 5px;
+        height: 13px;
+        border-radius: 0;
+        background: none;
+    }
+
+    .noc-legend-swatch.is-line::after {
+        content: '';
+        position: absolute;
+        top: 4px;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        transform: translateX(-50%);
+        border-radius: 1px;
+        background: var(--nb-now-line);
+    }
+
+    .noc-legend-swatch.is-line::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: linear-gradient(145deg, #ffb03a, #ff5c7a);
+    }
+
+    /* ==================================================================
+       Timezone comparison section
+       ================================================================== */
+    /* Inside the board, so it reads as this section's heading rather than as a
+       title for the whole page. Stuck to the left edge because the board scrolls
+       horizontally once the viewport drops below the timeline's min-width. */
+    .noc-tzcmp-title {
+        position: sticky;
+        left: 0;
+        margin: 0 0 10px;
+        font-size: var(--fs-title);
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    /* ==================================================================
+       Board : member rows
+       ================================================================== */
+    .noc-board {
+        background: var(--nb-surface);
+        border: 1px solid var(--nb-border);
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(11, 11, 11, 0.06);
+        padding: 16px;
+        overflow-x: auto;
+    }
+
+    .noc-board-inner {
+        position: relative;
+        min-width: 920px;
+    }
+
+    .noc-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .noc-table td {
+        vertical-align: middle;
+    }
+
+    .noc-td-timeline {
+        position: relative;
+    }
+
+    /* The comparison rows are 16px of bar separated by 12px of nothing, which
+       is more gap than content. Tighter spacing also makes the "now" line read
+       as one continuous ruler rather than a dashed sequence.
+
+       4px is about the floor: the day/night bands don't line up between
+       timezones, so with much less gutter than this the rows stop reading as
+       separate clocks and start looking like one striped field. */
+    .noc-table--tzcmp {
+        border-spacing: 0 4px;
+    }
+
+    .noc-col-tzcmp {
+        width: var(--nb-col-tzcmp);
+    }
+
+    .noc-tzcmp-label {
+        position: sticky;
+        left: 0;
+        background: var(--nb-surface);
+        z-index: 5;
+        padding-right: 10px;
+        vertical-align: middle;
+    }
+
+    /* Tight line-height so the label doesn't out-grow the 18px bar beside it
+       and end up being what sets the row height. */
+    .noc-tzcmp-name {
+        font-size: var(--fs-body);
+        font-weight: 600;
+        line-height: 1.15;
+    }
+
+    .noc-tzcmp-tag {
+        margin-top: 2px;
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: var(--nb-accent);
+    }
+
+
+    .noc-strip-label {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        color: var(--nb-text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    /* The end labels sit at 0% and 100%, so centring them would put half of each
+       outside the strip — which the bar cell clips. They align to the inside edge
+       instead.
+
+       -of-type, not -child: the labels share their row with the "now" chip and the
+       reference line, both divs appended after them. With :last-child the final
+       hour label stopped matching once the chip was added, and every chart row
+       quietly lost the right-hand half of its last label. */
+    .noc-strip-label:first-of-type {
+        transform: translate(0, -50%);
+    }
+
+    .noc-strip-label:last-of-type {
+        transform: translate(-100%, -50%);
+    }
+
+    /* ==================================================================
+       Presence : who is on right now, and who is next
+       ================================================================== */
+    .noc-presence {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .noc-presence-col {
+        background: var(--nb-surface);
+        border: 1px solid var(--nb-border);
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(11, 11, 11, 0.06);
+        padding: 10px 14px 12px;
+        min-width: 0;
+    }
+
+    .noc-presence-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .noc-presence-title {
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .noc-presence-note {
+        font-size: var(--fs-meta);
+        color: var(--nb-text-muted);
+    }
+
+    /* One block per shift. The heading states the shift once and, with it, the
+       single fact everyone in that block shares: when they finish, or when they
+       start. Repeating "in 3h 12m" against four identical names said nothing. */
+    .noc-presence-group + .noc-presence-group {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--nb-border);
+    }
+
+    .noc-presence-group-head {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 6px;
+    }
+
+    /* Drains as the wait runs down — the fill is the fraction still to go, so a
+       glance reads like an hourglass rather than a number. Sits inline right
+       after the time it belongs to. inline-block rather than block so it works
+       both as a flex item in the presence panel and mid-sentence in a table
+       cell. */
+    .noc-gauge {
+        display: inline-block;
+        vertical-align: middle;
+        width: 84px;
+        height: 6px;
+        margin: 0 5px;
+        border-radius: 3px;
+        background: var(--nb-muted-light);
+        overflow: hidden;
+        flex: none;
+    }
+
+    /* Narrower where it shares a 178px table cell with its own label. */
+    .noc-gauge--inline {
+        width: 54px;
+        margin: 0 0 0 6px;
+    }
+
+    .noc-gauge-fill {
+        display: block;
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+    }
+
+    .noc-gauge-eta {
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--nb-text-secondary);
+        white-space: nowrap;
+    }
+
+    .noc-presence-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 3px;
+        flex: none;
+    }
+
+    .noc-presence-shift {
+        font-size: var(--fs-body);
+        font-weight: 600;
+    }
+
+    .noc-presence-when {
+        font-size: var(--fs-meta);
+        color: var(--nb-text-muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .noc-presence-people {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* Air between one team's run of chips and the next. This is a wrapping row,
+       so a break that lands at the end of a line reads as an indent on the next
+       one rather than as a gap — the team name under each name is what still
+       carries the grouping when that happens. */
+    .noc-person.is-team-start {
+        margin-left: 16px;
+    }
+
+    .noc-person {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 10px 4px 4px;
+        border: 1px solid var(--nb-border);
+        border-radius: 20px;
+        background: var(--nb-page);
+        min-width: 0;
+    }
+
+    .noc-person .noc-avatar {
+        width: 24px;
+        height: 24px;
+        font-size: var(--fs-micro);
+        box-shadow: 0 0 0 2px var(--nb-muted-dark);
+    }
+
+    .noc-person-id {
+        min-width: 0;
+    }
+
+    /* Same treatment as .noc-member-name in the roster, one step down in size —
+       one way of writing a person's name on the page, not two. */
+    .noc-person-name {
+        font-size: var(--fs-name);
+        font-weight: 700;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+
+    .noc-person-team {
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--nb-text-muted);
+        white-space: nowrap;
+    }
+
+    .noc-presence-empty {
+        font-size: var(--fs-body);
+        color: var(--nb-text-muted);
+        padding: 4px 0;
+    }
+
+    /* ==================================================================
+       Roster : one lane per shift that has people on it today, member rows
+       nested underneath. Lanes are header ROWS inside the one table rather
+       than one card each — a shift with a single person then costs one
+       header line instead of a whole card's worth of chrome.
+       ================================================================== */
+    .noc-board-inner--roster {
+        margin-top: 0;
+        min-width: 1045px;   /* sum of the five columns above */
+    }
+
+    .noc-table--roster {
+        border-spacing: 0 6px;
+    }
+
+    .noc-col-member {
+        width: var(--nb-col-member);
+    }
+
+    .noc-col-team {
+        width: var(--nb-col-team);
+    }
+
+    .noc-col-when {
+        width: var(--nb-col-when);
+    }
+
+    .noc-col-week {
+        width: var(--nb-col-week);
+    }
+
+    .noc-roster-head th {
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--nb-text-muted);
+        text-align: left;
+        padding: 0 10px 2px 0;
+        white-space: nowrap;
+    }
+
+    /* --- lane header --- */
+    .noc-lane td {
+        padding: 0;
+    }
+
+    /* Two columns, mirroring a row of the chart above: a fixed-width label, then
+       a timeline that takes whatever is left. Because the label column is the
+       same token the chart uses, the two timelines start at the same x and flex
+       together — so the "now" markers line up down the page at any window width,
+       with nothing measured or hardcoded to a screen size.
+       Right padding is 0 and the bar drops its right border so the timeline ends
+       flush with the card edge, exactly as the chart's does. */
+    .noc-lane-inner {
+        display: flex;
+        align-items: flex-start;
+        padding: 8px 0 8px 12px;   /* top clears the "now" orb above the bar */
+        border: 1px solid var(--nb-border);
+        border-left: 4px solid var(--lane-color, var(--nb-muted-dark));
+        border-radius: 8px;
+        background: var(--nb-page);
+    }
+
+    .noc-lane-label {
+        flex: none;
+        /* --nb-lane-inset backs out this row's own left border + padding, so the
+           column ends where the chart's label column ends. */
+        width: calc(var(--nb-col-tzcmp) - var(--nb-lane-inset));
+        padding: 2px 10px 0 0;
+        min-width: 0;
+    }
+
+    .noc-lane-main {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* The shift drawn against the selected timezone's own clock. The chart up
+       top only draws shift bars on the India row — every other timezone gets
+       hour labels alone — so this is the one place you can see where a shift
+       lands in your day without tracing a column by eye. */
+    .noc-lane-bar {
+        position: relative;
+    }
+
+    .noc-lane-bar .noc-bar-cell {
+        border-right: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    /* Grouping fixes the row order, so the lane that is live right now has to
+       announce itself instead of floating to the top the way it used to. */
+    .noc-lane.is-live .noc-lane-inner {
+        background: var(--nb-surface);
+        box-shadow: 0 1px 3px rgba(11, 11, 11, 0.09);
+    }
+
+    .noc-lane-name {
+        font-size: var(--fs-body);
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .noc-lane-count {
+        margin-top: 2px;
+        font-size: var(--fs-meta);
+        line-height: 1.2;
+        color: var(--nb-text-muted);
+    }
+
+    .noc-lane-count .is-live-count {
+        color: var(--nb-good);
+        font-weight: 700;
+    }
+
+    /* --- member row --- */
+    .noc-td-member,
+    .noc-td-team,
+    .noc-td-when {
+        padding-right: 10px;
+    }
+
+    /* One pill per team — a member can belong to more than one, and the data
+       carries that as a comma-separated string. */
+    .noc-teams {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    /* Colour comes from teamColors() so the pill here and the tinted team line
+       on a presence chip are the same hue for the same team. */
+    .noc-team-pill {
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .noc-team-none {
+        font-size: var(--fs-meta);
+        color: var(--nb-text-muted);
+    }
+
+    .noc-when-abs {
+        font-size: var(--fs-body);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .noc-when-rel {
+        margin-top: 1px;
+        font-size: var(--fs-meta);
+        color: var(--nb-text-muted);
+        white-space: nowrap;
+    }
+
+    /* Proximity, so the column can be scanned for "who is back soon" rather
+       than read row by row. Under an hour borrows the same amber the status dot
+       uses for "Starting soon" — it is the identical fact, so it should not be a
+       second colour. Beyond six hours keeps the muted default. */
+    .noc-when-rel.is-soon {
+        color: var(--nb-warning-dark);
+        font-weight: 700;
+    }
+
+    .noc-when-rel.is-near {
+        color: var(--nb-text-secondary);
+    }
+
+    .noc-when-rel.is-distant {
+        color: var(--nb-text-muted);
+    }
+
+    .noc-when-none {
+        font-size: var(--fs-body);
+        color: var(--nb-text-muted);
+    }
+
+    /* --- 7-day strip : replaces the old static work-day pills. Same footprint,
+       but every cell carries state, so "last finished" and "next up" are
+       readable off the strip rather than only off the text columns. --- */
+    .noc-week-cells,
+    .noc-week-marks {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 3px;
+    }
+
+    .noc-week-day {
+        height: 26px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        background: repeating-linear-gradient(45deg, #e1e0d9, #e1e0d9 5px, #ececea 5px, #ececea 10px);
+        color: var(--nb-text-secondary);
+    }
+
+    .noc-week-day.is-working {
+        background: var(--wd-color, var(--nb-accent));
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+
+    .noc-week-day.is-leave {
+        background: repeating-linear-gradient(45deg, var(--nb-leave-light), var(--nb-leave-light) 5px, #ffffff 5px, #ffffff 10px);
+        color: var(--nb-leave-dark);
+    }
+
+    .noc-week-day.is-holiday {
+        background: repeating-linear-gradient(45deg, var(--nb-holiday-light), var(--nb-holiday-light) 5px, #ffffff 5px, #ffffff 10px);
+        color: var(--nb-holiday-dark);
+    }
+
+    .noc-week-day.is-not-scheduled {
+        background: repeating-linear-gradient(45deg, var(--nb-not-scheduled-light), var(--nb-not-scheduled-light) 5px, #ffffff 5px, #ffffff 10px);
+        color: var(--nb-not-scheduled-dark);
+    }
+
+    .noc-week-day.is-today {
+        box-shadow: 0 0 0 2px var(--nb-now-line);
+    }
+
+    .noc-week-marks {
+        margin-top: 3px;
+    }
+
+    .noc-week-mark {
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--nb-text-muted);
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* --- member row : label column --- */
+    .noc-member-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .noc-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--nb-muted-light);
+        color: var(--nb-text-primary);
+        font-weight: 700;
+        font-size: var(--fs-body);
+        flex: none;
+        box-shadow: 0 0 0 2px var(--nb-muted-dark);
+    }
+
+    .noc-avatar.is-upcoming {
+        background: var(--nb-warning-light);
+        box-shadow: 0 0 0 2px var(--nb-warning-dark);
+    }
+
+    /* On Weekend / On Leave / On Holiday: same treatment as Working Now (solid fill,
+       white text, darker ring) but using their own toned-down hues so they read as
+       distinct states without competing with Working Now for attention. */
+    .noc-avatar.is-weekend {
+        background: var(--nb-weekend);
+        color: #ffffff;
+        box-shadow: 0 0 0 2px var(--nb-weekend-dark);
+    }
+
+    .noc-avatar.is-leave {
+        background: var(--nb-leave);
+        color: #ffffff;
+        box-shadow: 0 0 0 2px var(--nb-leave-dark);
+    }
+
+    .noc-avatar.is-holiday {
+        background: var(--nb-holiday);
+        color: #ffffff;
+        box-shadow: 0 0 0 2px var(--nb-holiday-dark);
+    }
+
+    .noc-avatar.is-not-scheduled {
+        background: var(--nb-not-scheduled);
+        color: #ffffff;
+        box-shadow: 0 0 0 2px var(--nb-not-scheduled-dark);
+    }
+
+    /* 2.6s is the page's one tempo — the "now" line and its cap breathe on it
+       too, so nothing beats against anything else. Gentler than it was, because
+       this now runs on the presence chips as well and a dozen avatars pulsing
+       hard at 1.6s reads as agitation rather than liveness. */
+    .noc-avatar.is-active {
+        background: var(--nb-good);
+        color: #ffffff;
+        box-shadow: 0 0 0 2px var(--nb-good-dark);
+        animation: noc-avatar-pulse 2.6s ease-out infinite;
+    }
+
+    @keyframes noc-avatar-pulse {
+        0% {
+            box-shadow: 0 0 0 2px var(--nb-good-dark), 0 0 0 2px rgba(8, 122, 8, 0.45);
+        }
+
+        70%,
+        100% {
+            box-shadow: 0 0 0 2px var(--nb-good-dark), 0 0 0 10px rgba(8, 122, 8, 0);
+        }
+    }
+
+    .noc-member-id {
+        min-width: 0;
+    }
+
+    .noc-member-name {
+        font-weight: 700;
+        font-size: var(--fs-name);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .noc-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        color: var(--nb-text-muted);
+    }
+
+    .noc-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex: none;
+        background: var(--nb-text-muted);
+    }
+
+    .noc-status.is-active {
+        color: var(--nb-good);
+    }
+
+    .noc-status.is-active .noc-status-dot {
+        background: var(--nb-good);
+    }
+
+    .noc-status.is-upcoming {
+        color: var(--nb-warning);
+    }
+
+    .noc-status.is-upcoming .noc-status-dot {
+        background: var(--nb-warning);
+    }
+
+    .noc-status.is-weekend {
+        color: var(--nb-weekend);
+    }
+
+    .noc-status.is-weekend .noc-status-dot {
+        background: var(--nb-weekend);
+    }
+
+    .noc-status.is-leave {
+        color: var(--nb-leave);
+    }
+
+    .noc-status.is-leave .noc-status-dot {
+        background: var(--nb-leave);
+    }
+
+    .noc-status.is-holiday {
+        color: var(--nb-holiday);
+    }
+
+    .noc-status.is-holiday .noc-status-dot {
+        background: var(--nb-holiday);
+    }
+
+    .noc-status.is-not-scheduled {
+        color: var(--nb-not-scheduled);
+    }
+
+    .noc-status.is-not-scheduled .noc-status-dot {
+        background: var(--nb-not-scheduled);
+    }
+
+    /* --- timezone-comparison timeline : one container, stacked non-overlapping
+       ~15px rows — one per shift lane, then the hour-label strip. --- */
+    .noc-bar-cell {
+        position: relative;
+        background: #fefeff;
+        border: 1px solid var(--nb-border);
+        overflow: hidden;
+    }
+
+    .noc-bar-row {
+        position: relative;
+        height: 16px;
+    }
+
+    .noc-bar-row--shift {
+        border-top: 1px solid var(--nb-border);
+        border-bottom: 1px solid var(--nb-border);
+    }
+
+    .noc-shift-block {
+        position: absolute;
+        top: 1px;
+        bottom: 1px;
+        border-radius: 3px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+        color: #ffffff;
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+        cursor: default;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .noc-shift-block:focus {
+        outline: 2px solid var(--nb-now-line);
+        outline-offset: 2px;
+    }
+
+    /* Caption lives in its own span so its full width can be measured against
+       the block — a centred flex child doesn't report overflow reliably. */
+    .noc-shift-block-label {
+        white-space: nowrap;
+    }
+
+    /* ==================================================================
+       Crosshair : a second line you drive with the pointer, so "what is my
+       2:35am over there" is a hover instead of tracing a column by eye.
+
+       Accent-coloured so it is never mistaken for the dark "now" line, and it
+       carries the same side-mounted chip with the same flip rule, so the live
+       readout and the hover readout read as siblings. Rows are spans rather
+       than divs: the site reset sizes every `div` directly, which beats
+       inheritance, and spans are not in that selector list.
+       ================================================================== */
+    .noc-hover-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--nb-accent);
+        z-index: 21;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.12s ease;
+    }
+
+    .noc-hover-chip {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translate(8px, -50%);
+        z-index: 22;
+        background: var(--nb-accent);
+        color: #ffffff;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.12s ease;
+    }
+
+    .noc-hover-chip::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-right: 5px solid var(--nb-accent);
+    }
+
+    .noc-hover-chip.is-flipped {
+        transform: translate(calc(-100% - 8px), -50%);
+    }
+
+    .noc-hover-chip.is-flipped::after {
+        right: auto;
+        left: 100%;
+        border-right: 0;
+        border-left: 5px solid var(--nb-accent);
+    }
+
+    .is-crosshair-on .noc-hover-line,
+    .is-crosshair-on .noc-hover-chip {
+        opacity: 1;
+    }
+
+    .noc-hover-row {
+        display: block;
+        font-size: var(--fs-micro);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.45;
+    }
+
+    .noc-hover-row--base {
+        font-weight: 600;
+        opacity: 0.82;
+    }
+
+    /* The overlay spans the timeline across every row, which makes it exactly
+       the right hit area for the chart's crosshair. */
+    .noc-now-overlay,
+    .noc-lane-bar {
+        cursor: crosshair;
+    }
+
+    /* --- tooltip theme ---
+       tippy renders into document.body, outside .noc-dashboard, so the design
+       tokens don't reach it — the values below are --nb-now-line and
+       --nb-text-muted written out. Matches the "now" chip: same fill, same
+       radius, same tabular numerals, so a hover readout looks like the rest of
+       the page rather than like a library default.
+
+       The font-size has to be set on .tippy-content, not the box: the site
+       stylesheet targets that element directly and a direct rule beats
+       inheritance. --- */
+    .tippy-box[data-theme~='noc'] {
+        background: #292929;
+        color: #ffffff;
+        border-radius: 4px;
+    }
+
+    .tippy-box[data-theme~='noc'] > .tippy-content {
+        padding: 4px 9px;
+        font-size: var(--fs-meta);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.45;
+    }
+
+    /* tippy's arrow takes its colour from currentColor on .tippy-arrow. */
+    .tippy-box[data-theme~='noc'] > .tippy-arrow {
+        color: #292929;
+    }
+
+    /* --- search filtering ---
+       Hidden, not dimmed. At fifteen members a dim left fourteen ghosts to hunt
+       through; the lane headers carry the context the dim was preserving. --- */
+    .is-filtered-out {
+        display: none !important;
+    }
+
+    .noc-roster-empty td {
+        padding: 14px 4px;
+        font-size: var(--fs-body);
+        color: var(--nb-text-muted);
+    }
+
+    /* Inactive-status rows recede a little so Working Now rows pop. */
+    .noc-row[data-status="off"],
+    .noc-row[data-status="weekend"],
+    .noc-row[data-status="leave"],
+    .noc-row[data-status="holiday"] {
+        opacity: 0.75;
+    }
+
+    /* --- "now" overlay : only the timezone-comparison board has one now.
+       Takes pointer events so it can host the crosshair; nothing beneath it
+       needs hover any more, now that the shift blocks have no tooltips. --- */
+    .noc-now-overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: var(--nb-col-tzcmp);
+        right: 0;
+        z-index: 20;
+    }
+
+    /* Softened at both ends so it reads as a sweep rather than a hard rule, with
+       a slow halo breathing around it. Deliberately monochrome — the board
+       already carries five shift colours and a day/night wash, and a coloured
+       "now" marker would compete with all of them. */
+    .noc-now-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        left: 50%;
+        z-index: 20;
+        pointer-events: none;
+        border-radius: 1px;
+        background: linear-gradient(to bottom,
+                rgba(41, 41, 41, 0.28) 0%,
+                var(--nb-now-line) 10%,
+                var(--nb-now-line) 90%,
+                rgba(41, 41, 41, 0.28) 100%);
+        animation: noc-now-glow 2.6s ease-in-out infinite;
+    }
+
+    @keyframes noc-now-glow {
+
+        0%,
+        100% {
+            box-shadow: 0 0 4px 0 rgba(41, 41, 41, 0.16);
+        }
+
+        50% {
+            box-shadow: 0 0 9px 1px rgba(41, 41, 41, 0.30);
+        }
+    }
+
+    /* Caps every "now" line, chart and lane alike, so the marker is one object
+       wherever it appears. Every other colour on this board is deliberately
+       muted, so a single saturated warm orb is all it takes to read as "live"
+       and gives the page its one spot of life. The white halo keeps it legible
+       wherever on the day/night wash the line happens to be sitting. */
+    .noc-now-line::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #ffb03a, #ff5c7a);
+        box-shadow: 0 0 0 2px var(--nb-surface);
+        animation: noc-now-ping 2.4s ease-out infinite;
+    }
+
+
+    @keyframes noc-now-ping {
+        0% {
+            box-shadow: 0 0 0 2px var(--nb-surface), 0 0 0 0 rgba(255, 92, 122, 0.55);
+        }
+
+        70%,
+        100% {
+            box-shadow: 0 0 0 2px var(--nb-surface), 0 0 0 11px rgba(255, 92, 122, 0);
+        }
+    }
+
+    /* Real now, while the board is showing a different day: there is no honest
+       position for it inside the window, so it is not drawn at all. */
+    .noc-now-line.is-out-of-window {
+        display: none;
+    }
+
+    /* The instant being VIEWED — and while the board is shifted, this is what
+       every status, gauge and group on the page is describing. So it takes the
+       dominant treatment and the live marker steps back: the loudest thing on
+       screen should be the one that means something.
+
+       Solid accent line, a soft band either side to give it presence rather than
+       leaving it a hairline, and a filled chevron cap. The cap is deliberately
+       not the warm orb — that shape belongs to actual now. */
+    .noc-ref-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background: var(--nb-accent);
+        border-radius: 1px;
+        z-index: 21;
+        pointer-events: none;
+        display: none;
+    }
+
+    .noc-ref-line.is-on {
+        display: block;
+    }
+
+    /* The band. Reads as a region of interest instead of a 2px rule. */
+    .noc-ref-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 14px;
+        transform: translateX(-50%);
+        border-radius: 2px;
+        background: var(--nb-accent);
+        opacity: 0.12;
+    }
+
+    .noc-ref-line::before {
+        content: '';
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 7px solid var(--nb-accent);
+    }
+
+    /* Widens and settles whenever the reference moves. Most of "it doesn't catch
+       my eye" is really "I changed the time and didn't see where it went", which
+       is a moment-of-change problem rather than a resting-state one. */
+    @keyframes noc-ref-flash {
+        0% {
+            width: 30px;
+            opacity: 0.45;
+        }
+
+        100% {
+            width: 14px;
+            opacity: 0.12;
+        }
+    }
+
+    .noc-ref-line.is-flash::after {
+        animation: noc-ref-flash 0.45s ease-out;
+    }
+
+    /* Actual now, demoted while the board is shifted: still there as context,
+       but thin, grey, dashed, and stripped of the orb and the pulse so it cannot
+       be mistaken for what the page is answering for. */
+    .noc-now-line.is-secondary {
+        width: 0;
+        background: none;
+        border-left: 1px dashed var(--nb-text-muted);
+        border-radius: 0;
+        opacity: 0.75;
+        animation: none;
+    }
+
+    .noc-now-line.is-secondary::before {
+        display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .noc-now-line,
+        .noc-now-line::before,
+        .noc-ref-line.is-flash::after,
+        .noc-avatar.is-active {
+            animation: none;
+        }
+    }
+
+    /* Each timezone row states its own local time in a chip pinned to the "now"
+       line, instead of one stacked callout floating above the whole board. Puts
+       the reading next to the row it describes and costs zero vertical space —
+       the chip is the height of the hour strip it sits in, and it covers the
+       hour label under the line, which is the very hour it spells out. */
+    .noc-now-chip {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(6px, -50%);
+        z-index: 6;
+        background: var(--nb-now-line);
+        color: #ffffff;
+        padding: 0 6px;
+        height: 15px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 3px;
+        font-size: var(--fs-micro);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    /* The chips read whichever instant the board is answering for, so while it is
+       shifted they belong to the dashed line and take its colour. */
+    .noc-now-chip.is-reference {
+        background: var(--nb-accent);
+    }
+
+    .noc-now-chip.is-reference::after {
+        border-right-color: var(--nb-accent);
+    }
+
+    .noc-now-chip.is-reference.is-flipped::after {
+        border-left-color: var(--nb-accent);
+    }
+
+    .noc-now-chip-zone {
+        font-weight: 600;
+        opacity: 0.72;
+    }
+
+    /* Arrow on the side facing the "now" line, so the chip reads as a callout
+       belonging to that line rather than a label floating next to it. The 5px
+       triangle eats the 6px offset above, leaving the tip on the line. */
+    .noc-now-chip::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-right: 5px solid var(--nb-now-line);
+    }
+
+    /* Flipped when the line is far enough right that the chip would overflow;
+       the arrow swaps to the other edge and points back the other way. */
+    .noc-now-chip.is-flipped {
+        transform: translate(calc(-100% - 6px), -50%);
+    }
+
+    .noc-now-chip.is-flipped::after {
+        right: auto;
+        left: 100%;
+        border-right: 0;
+        border-left: 5px solid var(--nb-now-line);
+    }
+
+    @media (max-width: 576px) {
+        .noc-toprow {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .noc-tz-pills {
+            justify-content: flex-start;
+        }
+
+        /* Both boards keep their min-width and scroll horizontally rather than
+           reflowing — the lane header's two timezone readouts don't survive
+           being squeezed, and the 7-day strip has a floor below which it
+           stops being legible. */
+    }
+</style>
+
+<script>
+    /* ==================================================================
+       View configuration.
+
+       Everything about who works when lives in assets/js/veritone-schedule.js
+       and reaches this page through its helper functions — getRoster(),
+       getShifts(), getDayState() and friends. Nothing below this line knows a
+       fact about a person; it decides how facts get drawn.
+       ================================================================== */
+
+    // Which timezones the board compares against. A property of the audience,
+    // not of the team — the team is entirely in India — so it lives here with
+    // the rest of the view. Order drives the chart's row order.
+    var TIMEZONES = [
+        { value: 'Asia/Kolkata', pill: 'India (IST)', label: 'UTC +5:30 (India)' },
+        { value: 'Asia/Jerusalem', pill: 'Israel (IDT)', label: 'UTC +2 (Israel)' },
+        { value: 'UTC', pill: 'UTC / London', label: 'UTC +0 (London)' },
+        { value: 'America/New_York', pill: 'US Eastern (EDT)', label: 'UTC -5 (Miami / New York)' },
+        { value: 'America/Denver', pill: 'US Mountain (MDT)', label: 'UTC -7 (Denver)' },
+        { value: 'America/Los_Angeles', pill: 'US Pacific (PDT)', label: 'UTC -8 (Los Angeles)' },
+    ];
+
+
+    var roster = null;
+    var selectedTimezone = 'America/Denver';
+
+    /* The instant the whole board answers for. null means live — every render
+       path reads nowRef() rather than moment(), so pointing this at a future
+       Thursday makes statuses, presence, the 7-day strip and the timelines all
+       describe that Thursday. getRoster() was already parameterised on time, so
+       there is no scheduling logic behind this: only the clock moves. */
+    var referenceInstant = null;
+
+    function nowRef() {
+        return referenceInstant ? referenceInstant.clone() : moment();
+    }
+
+    function isTimeShifted() {
+        return referenceInstant !== null;
+    }
+    var windowStart = null;
+    var windowEnd = null;
+
+    // The 7-day strip is a rolling window rather than a fixed Sun–Sat week: with a
+    // two-day weekly off, three days either side always contains both the last
+    // completed shift and the next one, whichever day of the week you look on.
+    var WEEK_WINDOW_BEFORE = 3;
+    var WEEK_WINDOW_AFTER = 3;
+    var UNSCHEDULED_LANE = '__unscheduled__';
+
+    $(function () {
+        // Hand-edited relational data fails silently — a mistyped memberId just
+        // drops someone into "Not scheduled". Surface it in the console instead.
+        validateScheduleData();
+
+        initTimezonePills();
+        initSearchBox();
+        initDateControl();
+        initCrosshair();
+        renderLegend();     // static: shift colours and names never change
+        renderBoard();
+        setInterval(renderBoard, 60000);
+        setInterval(tickLiveClocks, 1000);
+
+        // Independent of the timezone selector above — same window/team-base
+        // reference, but nothing here changes when a pill is clicked, so it
+        // only needs its own periodic refresh for the day to roll over.
+        renderTimezoneCompare();
+        setInterval(renderTimezoneCompare, 60000);
+
+        // Both the now-chip side and the shift-block captions are chosen by
+        // measurement, so they have to be re-decided when the layout changes.
+        $(window).on('resize', function () {
+            tickLiveClocks();
+            fitShiftBlockLabels();
+        });
+    });
+
+    /* ---------------- Phase 2 piece: timezone pill selector ---------------- */
+    function initTimezonePills() {
+        var $wrap = $('#noc-tz-pills').empty();
+        TIMEZONES.forEach(function (tz) {
+            $('<button type="button" class="noc-tz-pill">')
+                .attr('data-tz', tz.value)
+                .attr('data-tip', tz.label)
+                .text(tz.pill)
+                .toggleClass('is-selected', tz.value === selectedTimezone)
+                .on('click', function () {
+                    selectedTimezone = tz.value;
+                    $wrap.find('.noc-tz-pill').removeClass('is-selected');
+                    $(this).addClass('is-selected');
+                    // The chart has to redraw too now that the window is
+                    // anchored to the selection, or the two boards would be
+                    // showing different 24 hours at the same x.
+                    renderBoard();
+                    renderTimezoneCompare();
+                })
+                .appendTo($wrap);
+        });
+    }
+
+    /* ---------------- tooltips ----------------
+       One delegated tippy for the page rather than an instance per element:
+       fifteen members times seven day cells is 105 of them, and delegate()
+       creates each lazily on first hover instead.
+
+       Replaces the native `title`, which gave us the OS's ~1s delay, the OS's
+       styling, and its habit of auto-hiding after five seconds and refusing to
+       come back until you leave and re-enter the element — the reason a tooltip
+       sometimes never appeared while tracking along a row of days.
+       ------------------------------------------------------------------- */
+    var tooltipDelegate = null;
+
+    function refreshTooltips() {
+        if (!window.tippy) { return; }
+
+        // Child instances outlive the elements they were built for, and the
+        // boards are rebuilt every 60s — tearing the delegate down takes its
+        // orphans with it.
+        //
+        // delegate() given a SELECTOR returns an array, not one instance, so
+        // calling .destroy() on the return value threw. It only threw on the
+        // second call — the first sees a null and skips — which meant the initial
+        // render looked fine and then every re-render aborted here, taking
+        // renderTimezoneCompare() and the reference flash down with it.
+        [].concat(tooltipDelegate || []).forEach(function (instance) {
+            if (instance && instance.destroy) { instance.destroy(); }
+        });
+
+        // Below by default. Any single element can overrule that with
+        // data-tippy-placement="top|left|right|…" — tippy reads its own
+        // data-tippy-* attributes off the reference element, so per-tooltip
+        // placement needs no code here, just the attribute where it's rendered.
+        tooltipDelegate = tippy.delegate('.veritone-schedule', {
+            target: '[data-tip]',
+            content: function (element) { return element.getAttribute('data-tip'); },
+            theme: 'noc',
+            placement: 'bottom',
+            delay: [180, 0],
+            offset: [0, 8],
+        });
+    }
+
+    /* ---------------- search ----------------
+       One rule, applied everywhere on the page: show only what matches. The
+       presence panels narrow too — the absence of a name from "Online now" is
+       itself the answer to "is she on?", and once teams are searchable it is
+       the only way to ask "which of my CloudOps people are on right now?".
+       ---------------------------------------------------------------------- */
+    var searchQuery = '';
+
+    function initSearchBox() {
+        $('#noc-search-input').on('input', function () {
+            searchQuery = (this.value || '').trim().toLowerCase();
+            applySearchFilter();
+        });
+    }
+
+    function searchKeyFor(member) {
+        return (member.name + ' ' + member.teams.join(' ')).toLowerCase();
+    }
+
+    function matchesSearch(member) {
+        return !searchQuery || searchKeyFor(member).indexOf(searchQuery) !== -1;
+    }
+
+    function applySearchFilter() {
+        renderPresence();      // groups, counts and empty states all shift with the query
+        applyRosterFilter();
+        fitShiftBlockLabels(); // captions are measured, and hiding changes what is measurable
+    }
+
+    function applyRosterFilter() {
+        var laneShown = {};
+
+        $('#noc-tbody tr[data-search]').each(function () {
+            var $row = $(this);
+            var match = !searchQuery || $row.attr('data-search').indexOf(searchQuery) !== -1;
+            $row.toggleClass('is-filtered-out', !match);
+            if (match) {
+                var lane = $row.attr('data-lane');
+                laneShown[lane] = (laneShown[lane] || 0) + 1;
+            }
+        });
+
+        // A lane with nothing left under it has nothing to head up.
+        $('#noc-tbody tr[data-lane-header]').each(function () {
+            var $lane = $(this);
+            var shown = laneShown[$lane.attr('data-lane-header')] || 0;
+            $lane.toggleClass('is-filtered-out', shown === 0);
+            renderLaneCount($lane, shown);
+        });
+
+        $('#noc-tbody .noc-roster-empty')
+            .toggleClass('is-filtered-out', Object.keys(laneShown).length > 0)
+            .children('td').text(noMatchText());
+    }
+
+    // Counts live here rather than in renderLane so the filtered and unfiltered
+    // wording come from one place. The live count describes the shift, not the
+    // filtered view, so it stays put.
+    function renderLaneCount($lane, shown) {
+        var total = Number($lane.attr('data-lane-total'));
+        var live = Number($lane.attr('data-lane-live'));
+
+        var $count = $lane.find('.noc-lane-count').empty()
+            .text((searchQuery ? shown + ' of ' + total : String(total))
+                + (total === 1 ? ' member' : ' members'));
+
+        if (live) {
+            $count.append(' · ', $('<span class="is-live-count">').text(live + ' working now'));
+        }
+    }
+
+    /* ---------------- Phase 2 piece: upcoming holidays ---------------- */
+    function renderHolidays() {
+        var $list = $('#noc-holidays-list').empty();
+        var from = nowRef().tz(getScheduleTimezone()).format('YYYY-MM-DD');
+
+        getUpcomingHolidays(3, from).forEach(function (holiday) {
+            $('<div class="noc-holiday-chip">').append(
+                $('<span>').text('🎉'),
+                $('<span class="date">').text(moment(holiday.date, 'YYYY-MM-DD').format('MMM D') + ' —'),
+                $('<span>').text(holiday.name)
+            ).appendTo($list);
+        });
+    }
+
+    /* ---------------- legend ---------------- */
+    function renderLegend() {
+        var $legend = $('#noc-legend').empty();
+        // Catalog order, not clock order — this is a colour key, and the order
+        // it reads best in is a judgement call left to the data file.
+        SCHEDULE_DATA.shifts.forEach(function (shift) {
+            var $item = $('<div class="noc-legend-item">');
+            $('<span class="noc-legend-swatch">').css('background', shift.color).appendTo($item);
+            // Names the zone explicitly: with the lane headers now showing only
+            // the selected timezone, this is the one place the canonical hours
+            // a shift is *defined* in are stated.
+            $('<span>').text(shift.label + ' (' + formatShiftHours(shift.id) + ' IST)').appendTo($item);
+            $legend.append($item);
+        });
+
+        var $now = $('<div class="noc-legend-item">');
+        $('<span class="noc-legend-swatch is-line">').appendTo($now);
+        $('<span>').text('Current time').appendTo($now);
+        $legend.append($now);
+    }
+
+    /* ==================================================================
+       Board rendering, driven by getRoster() + selectedTimezone
+       ================================================================== */
+    function renderBoard() {
+        resetWindow();
+        roster = getRoster(nowRef());
+        renderDateDisplay();
+        renderHolidays();          // "upcoming" moves with the clock and the reference
+        renderRosterBoard();
+        applySearchFilter();       // renders the presence panels and applies the filter
+        tickLiveClocks();
+        refreshTooltips();
+    }
+
+    // One calendar day in the SELECTED timezone, midnight to midnight — the
+    // reader's own day, and the same span the date header names. Anchoring to
+    // team base instead meant a Mountain viewer read a strip running 12:30pm to
+    // 12:30pm, which is nobody's day. Exactly one shift straddles midnight
+    // whichever zone anchors it, so this costs nothing in the drawing.
+    //
+    // Both boards share it, which is what keeps their "now" lines on the same
+    // vertical — so this has to be reset before either one renders.
+    function resetWindow() {
+        windowStart = nowRef().tz(selectedTimezone).startOf('day');
+        windowEnd = windowStart.clone().add(24, 'hours');
+    }
+
+    function renderDateDisplay() {
+        $('#noc-date').text(nowRef().tz(selectedTimezone).format('MMMM D, YYYY'));
+
+        // While the picker is open the controls ARE the readout, so nothing needs
+        // restating. They do need re-pointing when the timezone changes, since the
+        // same instant is a different wall clock and possibly a different day.
+        if (isDatePickerOpen()) { syncPickerTo(nowRef()); }
+    }
+
+    /* ---------------- picking the instant ----------------
+       A month grid for the date and a 15-minute list for the time. The wall clock
+       they produce is read in the SELECTED timezone, so "2:15 pm" means 2:15 pm
+       where the reader is — no conversion is shown, because none is needed to
+       understand your own choice.
+
+       Clicking the date works, but a first-time reader has no way to know that,
+       so the calendar button beside it is the discoverable path and carries the
+       explanation in its tooltip.
+       ------------------------------------------------------------------- */
+    // Half-hourly, because every shift boundary in the catalog is on :00 or :30.
+    var TIME_STEP_MINUTES = 30;
+
+    function initDateControl() {
+        buildTimeOptions();
+
+        $('#noc-date, #noc-date-open').on('click', openDatePicker);
+
+        $('#noc-date-input, #noc-time-select').on('change', function () {
+            var picked = readPicker();
+            if (!picked) { return; }   // date field cleared
+            referenceInstant = picked;
+            applyReferenceChange();
+        });
+
+        $('#noc-date-reset').on('click', function () {
+            referenceInstant = null;
+            closeDatePicker();
+            applyReferenceChange();
+        });
+    }
+
+    // The date field yields a bare calendar date and the select a bare wall
+    // clock; both are read in the SELECTED timezone, so "2:00 pm" means 2:00 pm
+    // where the reader is.
+    function readPicker() {
+        var date = $('#noc-date-input').val();
+        var time = $('#noc-time-select').val();
+        if (!date || !time) { return null; }
+        return moment.tz(date + ' ' + time, 'YYYY-MM-DD HH:mm', selectedTimezone);
+    }
+
+    function openDatePicker() {
+        // Opening while live pre-selects the next slot up, the way a calendar app
+        // does — at 2:09 you almost certainly mean 2:30, not 2:00.
+        syncPickerTo(isTimeShifted() ? nowRef() : nextTimeSlot(moment()));
+
+        $('#noc-date, #noc-date-open').prop('hidden', true);
+        $('#noc-date-picker').prop('hidden', false);
+    }
+
+    function closeDatePicker() {
+        $('#noc-date-picker').prop('hidden', true);
+        $('#noc-date, #noc-date-open').prop('hidden', false);
+    }
+
+    function isDatePickerOpen() {
+        return !$('#noc-date-picker').prop('hidden');
+    }
+
+    // Point the controls at an instant. Also used when the timezone changes: the
+    // same moment is a different wall clock there, and possibly a different day.
+    function syncPickerTo(instant) {
+        var at = instant.clone().tz(selectedTimezone);
+        $('#noc-date-input').val(at.format('YYYY-MM-DD'));
+        $('#noc-time-select').val(at.format('HH:mm'));
+        renderPickerEcho(at);
+    }
+
+    function renderPickerEcho(at) {
+        var teamZone = getScheduleTimezone();
+        var inTeam = at.clone().tz(teamZone);
+        var sameDate = inTeam.format('YYYY-MM-DD') === at.format('YYYY-MM-DD');
+
+        // What the chosen instant is on team time — the clock the shifts are
+        // actually defined in. Suppressed when the reader is already on it. The
+        // date is appended when it differs, which it often does: an afternoon in
+        // Mountain is the small hours of the next morning in India.
+        $('#noc-date-echo').text(selectedTimezone === teamZone ? ''
+            : '\u2192 ' + inTeam.format('h:mm a z')
+              + (sameDate ? '' : ' \u00b7 ' + inTeam.format('MMM D')));
+
+        // Holidays are team-base dates, so this looks up the instant's IST date —
+        // which can be the day after the one showing in the date field.
+        var holiday = getHolidayOn(inTeam.format('YYYY-MM-DD'));
+        $('#noc-date-holiday').prop('hidden', !holiday).text(holiday ? holiday.name : '');
+    }
+
+    function nextTimeSlot(instant) {
+        var at = instant.clone().startOf('minute');
+        var past = at.minutes() % TIME_STEP_MINUTES;
+        return past === 0 ? at : at.add(TIME_STEP_MINUTES - past, 'minutes');
+    }
+
+    function buildTimeOptions() {
+        var $time = $('#noc-time-select').empty();
+        var slot = moment().startOf('day');   // a formatting vehicle: wall clocks only
+
+        for (var minute = 0; minute < 24 * 60; minute += TIME_STEP_MINUTES) {
+            $('<option>')
+                .attr('value', slot.format('HH:mm'))
+                .text(slot.format('h:mm a'))
+                .appendTo($time);
+            slot.add(TIME_STEP_MINUTES, 'minutes');
+        }
+    }
+
+    // Both boards, because the window is anchored to the reference day and the
+    // chart draws against that same window.
+    function applyReferenceChange() {
+        renderBoard();
+        renderTimezoneCompare();
+
+        // After both renders: renderBoard() rebuilds the lane bars, so their
+        // reference lines don't exist until now.
+        if (isTimeShifted()) { flashReferenceMarker(); }
+    }
+
+    function flashReferenceMarker() {
+        var $lines = $('.noc-ref-line').removeClass('is-flash');
+
+        // Reading offsetWidth forces a reflow, which is what lets the animation
+        // restart when the class is re-added on an element that just had it.
+        $lines.each(function () { void this.offsetWidth; });
+        $lines.addClass('is-flash');
+    }
+
+    function tzShortLabel(tz) {
+        var found = TIMEZONES.filter(function (t) { return t.value === tz; })[0];
+        return found ? found.pill : tz;
+    }
+
+    // "2d 14h" / "5h 45m" / "45m". moment's own humanize() rounds 2d14h to "2 days",
+    // which is exactly the resolution that matters when you're asking how long until
+    // someone is back on.
+    function formatDuration(ms) {
+        var mins = Math.round(Math.abs(ms) / 60000);
+        var days = Math.floor(mins / 1440);
+        var hours = Math.floor((mins % 1440) / 60);
+        var minutes = mins % 60;
+        if (days) { return days + 'd ' + hours + 'h'; }
+        if (hours) { return hours + 'h ' + minutes + 'm'; }
+        return minutes + 'm';
+    }
+
+    // Named days beat dates for anything within arm's reach of today.
+    function formatWhen(instant, tz) {
+        var zone = tz || selectedTimezone;
+        var local = instant.clone().tz(zone);
+        var offsetDays = local.clone().startOf('day').diff(nowRef().tz(zone).startOf('day'), 'days');
+        var dayLabel;
+        if (offsetDays === 0) { dayLabel = 'Today'; }
+        else if (offsetDays === 1) { dayLabel = 'Tomorrow'; }
+        else if (offsetDays === -1) { dayLabel = 'Yesterday'; }
+        else if (offsetDays > 1 && offsetDays < 7) { dayLabel = local.format('ddd'); }
+        else { dayLabel = local.format('MMM D'); }
+        return dayLabel + ', ' + local.format('h:mm a');
+    }
+
+    // Same, minus the day label when the instant falls on today *in that zone* —
+    // and always carrying the zone. Which day it is genuinely differs between
+    // zones (6:00 am Tuesday IST is 6:30 pm Monday in Mountain), so stating one
+    // clock time without naming its zone is the ambiguity worth removing.
+    function formatWhenInZone(instant, tz) {
+        var local = instant.clone().tz(tz);
+        var isToday = local.clone().startOf('day').isSame(nowRef().tz(tz).startOf('day'));
+        return (isToday ? local.format('h:mm a') : formatWhen(instant, tz)) + ' ' + local.format('z');
+    }
+
+
+    function pctInWindow(momentValue) {
+        var windowMs = windowEnd.valueOf() - windowStart.valueOf();
+        var pct = (momentValue.valueOf() - windowStart.valueOf()) / windowMs * 100;
+        return Math.max(0, Math.min(100, pct));
+    }
+
+    // Fixed clock-hour day/night bands (local time), independent of any member data:
+    // 00-06 night, 06-08 morning, 08-18 day, 18-22 evening, 22-24 night.
+    var DAY_PHASES = [
+        { fromHour: 0, color: 'var(--nb-phase-night)' },
+        { fromHour: 6, color: 'var(--nb-phase-morning)' },
+        { fromHour: 8, color: 'var(--nb-phase-day)' },
+        { fromHour: 18, color: 'var(--nb-phase-evening)' },
+        { fromHour: 22, color: 'var(--nb-phase-night)' },
+    ];
+
+    // Builds a hard-edged (no blending) day/night gradient for the given timezone,
+    // by walking each local calendar day overlapping the window and emitting a
+    // color-stop pair at every phase boundary that falls inside it.
+    function buildClockGradientCss(tz) {
+        var cursor = windowStart.clone().tz(tz).startOf('day').subtract(1, 'day');
+        var stopLimit = windowEnd.clone().tz(tz).add(1, 'day');
+        var boundaries = [];
+
+        while (cursor.isBefore(stopLimit)) {
+            DAY_PHASES.forEach(function (phase) {
+                boundaries.push({ moment: cursor.clone().add(phase.fromHour, 'hours'), color: phase.color });
+            });
+            cursor.add(1, 'day');
+        }
+
+        boundaries.sort(function (a, b) { return a.moment.valueOf() - b.moment.valueOf(); });
+
+        var currentColor = DAY_PHASES[DAY_PHASES.length - 1].color;
+        boundaries.forEach(function (b) {
+            if (b.moment.isSameOrBefore(windowStart)) { currentColor = b.color; }
+        });
+
+        var stops = [currentColor + ' 0%'];
+        boundaries.forEach(function (b) {
+            if (b.moment.isSameOrBefore(windowStart) || b.moment.isSameOrAfter(windowEnd)) { return; }
+            var pct = pctInWindow(b.moment);
+            stops.push(currentColor + ' ' + pct + '%');
+            stops.push(b.color + ' ' + pct + '%');
+            currentColor = b.color;
+        });
+        stops.push(currentColor + ' 100%');
+
+        return 'linear-gradient(to right, ' + stops.join(', ') + ')';
+    }
+
+    // Builds one hour-mark per actual local-clock hour boundary (in `tz`) that falls
+    // inside the visible window, along with its position% and compact "1a"/"1p" label.
+    function buildHourMarks(tz) {
+        var cursor = windowStart.clone().tz(tz).startOf('day').subtract(1, 'day');
+        var stopLimit = windowEnd.clone().tz(tz).add(1, 'day');
+        var marks = [];
+
+        while (cursor.isBefore(stopLimit)) {
+            for (var h = 0; h < 24; h++) {
+                var t = cursor.clone().add(h, 'hours');
+                if (t.isBefore(windowStart) || t.isAfter(windowEnd)) { continue; }
+                marks.push({
+                    pct: pctInWindow(t),
+                    label: t.tz(tz).format('h') + t.tz(tz).format('a').charAt(0),
+                });
+            }
+            cursor.add(1, 'day');
+        }
+
+        marks.sort(function (a, b) { return a.pct - b.pct; });
+        return marks;
+    }
+
+    function renderHourMarksInto($strip, marks) {
+        $strip.empty();
+        marks.forEach(function (mark) {
+            $('<span class="noc-strip-label">')
+                .css('left', mark.pct + '%')
+                .text(mark.label)
+                .appendTo($strip);
+        });
+    }
+
+    // The boards show a generic 24h clock face (always midnight-to-midnight in the
+    // schedule timezone), not one specific dated shift occurrence. A shift that
+    // crosses midnight (e.g. night, 21:30-06:00) therefore needs TWO segments to
+    // render correctly within that window: the tail of the occurrence that started
+    // the day before, and the head of the occurrence that starts today. Segments
+    // with no overlap after clipping are dropped.
+    function getShiftSegments(shiftId) {
+        var tz = getScheduleTimezone();
+        var segments = [];
+
+        // Three candidate occurrences, not two: now that the window is anchored
+        // to the selected zone it can straddle three team-base dates, so the
+        // occurrence starting the day after the window opens can still show up
+        // inside it. Candidates with no overlap are dropped below.
+        [-1, 0, 1].forEach(function (dayOffset) {
+            var dateStr = windowStart.clone().tz(tz).add(dayOffset, 'days').format('YYYY-MM-DD');
+            var occurrence = getShiftInstantsOn(shiftId, dateStr);
+
+            var visibleStart = moment.max(occurrence.start, windowStart);
+            var visibleEnd = moment.min(occurrence.end, windowEnd);
+            if (visibleEnd.isAfter(visibleStart)) {
+                segments.push({ start: visibleStart, end: visibleEnd });
+            }
+        });
+
+        return segments;
+    }
+
+    // Draws one shift's blocks across a 24h strip, clipped to the window.
+    // options: { shift, labels } — `labels` is a longest-first list of captions;
+    // fitShiftBlockLabels() picks the first one that actually fits.
+    function renderShiftBlocksInto($row, shift, labels) {
+        var blocks = getShiftSegments(shift.id).map(function (segment) {
+            var leftPct = pctInWindow(segment.start);
+            return { leftPct: leftPct, widthPct: pctInWindow(segment.end) - leftPct };
+        });
+
+        // A shift crossing midnight arrives as two blocks; only the wider one is
+        // captioned, so one shift never prints its label twice.
+        var widest = blocks.reduce(function (best, block, index) {
+            return block.widthPct > blocks[best].widthPct ? index : best;
+        }, 0);
+
+        blocks.forEach(function (block, index) {
+            var $block = $('<div class="noc-shift-block" tabindex="0">')
+                .css({ left: block.leftPct + '%', width: block.widthPct + '%', background: shift.color })
+                .attr('aria-label', shiftAriaLabel(shift))
+                .append($('<span class="noc-shift-block-label">'));
+
+            if (index === widest) { $block.data('labels', labels); }
+
+            $block.appendTo($row);
+        });
+    }
+
+    var SHIFT_BLOCK_PADDING = 12;   // .noc-shift-block horizontal padding, both sides
+
+    // Percentage thresholds can't work for this: the same 37.5%-wide block is
+    // ~266px at the board's min-width and ~450px on a wide monitor, while a
+    // caption is a fixed pixel length. So captions are chosen by measurement —
+    // longest candidate that fits — once the blocks are in the document and have
+    // a real width. Must run after the boards are attached, and again on resize.
+    function fitShiftBlockLabels() {
+        $('.noc-shift-block').each(function () {
+            var labels = $(this).data('labels') || [];
+            var label = this.querySelector('.noc-shift-block-label');
+            var available = this.clientWidth - SHIFT_BLOCK_PADDING;
+
+            // A block inside a hidden lane measures zero. Leaving its caption
+            // alone matters: clearing it here would blank the text and nothing
+            // would put it back when the search is cleared.
+            if (available <= 0) { return; }
+
+            for (var i = 0; i < labels.length; i++) {
+                label.textContent = labels[i];
+                if (label.scrollWidth <= available) { return; }
+            }
+            label.textContent = '';
+        });
+    }
+
+    // The shift as it falls on the window's own day — the reference occurrence
+    // used for every "what hours is this shift" readout.
+    function canonicalShiftInstants(shift) {
+        return getShiftInstantsOn(shift.id, windowStart.clone().tz(getScheduleTimezone()).format('YYYY-MM-DD'));
+    }
+
+    // 'z' resolves the live abbreviation at that instant, so it follows DST on
+    // its own — IST, UTC, MDT/MST, EDT/EST — rather than being pinned in data.
+    function formatRangeWithZone(instants, tz) {
+        return formatRange(instants, tz) + ' ' + instants.start.clone().tz(tz).format('z');
+    }
+
+    function shiftAriaLabel(shift) {
+        var canonical = canonicalShiftInstants(shift);
+        return shift.label
+            + ' • ' + formatRangeWithZone(canonical, getScheduleTimezone())
+            + ' • ' + formatRangeWithZone(canonical, selectedTimezone);
+    }
+
+    /* ==================================================================
+       Timezone comparison section: one hour-label strip per timezone in
+       the list, so it's easy to read what time it is everywhere at a
+       glance. Since shifts are defined in team-base (India) time, the
+       shift lanes are shown only above the India row, not repeated for
+       every timezone. Each row carries its own "now" chip.
+       ================================================================== */
+    function renderTimezoneCompare() {
+        resetWindow();
+        var $tbody = $('#noc-tzcmp-tbody').empty();
+        var laneShifts = getShiftsInUse();
+        var teamTimezone = getScheduleTimezone();
+
+        TIMEZONES.forEach(function (tzOption) {
+            var tz = tzOption.value;
+            var isTeamBase = tz === teamTimezone;
+            var $tr = $('<tr class="noc-tzcmp-row">');
+
+            var $label = $('<td class="noc-tzcmp-label">');
+            $('<div class="noc-tzcmp-name">').text(tzOption.pill).appendTo($label);
+            if (isTeamBase) {
+                $('<div class="noc-tzcmp-tag">').text('Team base').appendTo($label);
+            }
+            $tr.append($label);
+
+            var $timelineTd = $('<td class="noc-td-timeline">');
+            var $bar = $('<div class="noc-bar-cell">');
+
+            if (isTeamBase) {
+                laneShifts.forEach(function (shift) {
+                    var $shiftRow = $('<div class="noc-bar-row noc-bar-row--shift">').appendTo($bar);
+                    // Named here, not timed — up in the chart there is no label
+                    // column to say which lane is which.
+                    renderShiftBlocksInto($shiftRow, shift, [shift.label]);
+                });
+            }
+
+            var $labelsRow = $('<div class="noc-bar-row noc-bar-row--labels">')
+                .css('background', buildClockGradientCss(tz))
+                .appendTo($bar);
+            renderHourMarksInto($labelsRow, buildHourMarks(tz));
+
+            $('<div class="noc-now-chip">')
+                .attr('data-tz', tz)
+                .append(
+                    $('<span class="noc-now-chip-time">'),
+                    $('<span class="noc-now-chip-zone">')
+                )
+                .appendTo($labelsRow);
+
+            $timelineTd.append($bar);
+            $tr.append($timelineTd);
+            $tbody.append($tr);
+        });
+
+        // Rebuilding the tbody throws away the chips mid-flight. Without this the
+        // fresh ones sit empty at their default position until the next 1s tick —
+        // which is the blank stub that flashes in the middle every minute.
+        tickLiveClocks();
+        fitShiftBlockLabels();
+    }
+
+    var STATUS_META = {
+        active: { label: 'Working now', cls: 'is-active' },
+        upcoming: { label: 'Starting soon', cls: 'is-upcoming' },
+        off: { label: 'Off shift', cls: '' },
+        weekend: { label: 'On weekend', cls: 'is-weekend' },
+        leave: { label: 'On leave', cls: 'is-leave' },
+        holiday: { label: 'On holiday', cls: 'is-holiday' },
+        'not-scheduled': { label: 'Not scheduled', cls: 'is-not-scheduled' },
+    };
+
+    function initials(name) {
+        return name.split(/\s+/).map(function (part) { return part.charAt(0); }).join('').substring(0, 2).toUpperCase();
+    }
+
+    /* ==================================================================
+       Presence : who is on right now, and who is on next.
+
+       Both halves group by shift rather than listing loose names. Two shifts
+       overlap for part of the day, so "who is on" is only meaningful alongside
+       which shift; and people come online in shift-sized batches, so the
+       countdown belongs to the group, not repeated against every name.
+       ================================================================== */
+    function renderPresence() {
+        var now = nowRef();
+
+        var online = roster.members.filter(function (member) { return member.status === 'active'; });
+
+        // Only the shift that comes on next. Anything past that is a question
+        // about tomorrow, which the roster below already answers in full.
+        // Whoever is already on is excluded — their nextStart is tomorrow's
+        // occurrence, so they'd otherwise appear in both halves.
+        // Keyed on shift AND start instant: two people on the same shift can be
+        // due at different times when one of them has a day off in between.
+        var upcoming = roster.members.filter(function (member) {
+            return member.status !== 'active' && member.nextStart;
+        });
+        var nextGroups = groupBy(upcoming, function (member) {
+            return member.shiftId + '@' + member.nextStart.valueOf();
+        }).slice(0, 1);
+
+        var onlineShown = renderPresenceGroups(
+            $('#noc-online-body'),
+            groupBy(online, function (member) { return member.shiftId; }),
+            function (group, $head) {
+                var shiftInstants = group.members[0].shift;
+
+                // How much of the shift is left, against the shift's own length.
+                appendGauge($head, {
+                    remaining: shiftInstants.end.valueOf() - now.valueOf(),
+                    span: shiftInstants.end.valueOf() - shiftInstants.start.valueOf(),
+                    color: shiftColorOf(group),
+                    label: formatDuration(shiftInstants.end.valueOf() - now.valueOf()) + ' left',
+                });
+
+                // Selected zone only. This is the glance layer; the shift's
+                // team-base hours are stated on the lane bar caption below.
+                $('<span class="noc-presence-when">')
+                    .text('until ' + formatWhenInZone(shiftInstants.end, selectedTimezone))
+                    .appendTo($head);
+            },
+            'Nobody is on shift right now.',
+            STATUS_META.active.cls
+        );
+
+        var nextTotal = nextGroups.length ? nextGroups[0].members.length : 0;
+        var nextShown = renderPresenceGroups(
+            $('#noc-soon-body'),
+            nextGroups,
+            function (group, $head) {
+                var start = group.members[0].nextStart;
+
+                // How much of the wait is left, against the longest gap the
+                // rotation ever puts between two shift starts.
+                appendGauge($head, {
+                    remaining: start.valueOf() - now.valueOf(),
+                    span: getLongestGapBetweenShiftStarts(),
+                    color: shiftColorOf(group),
+                    label: 'in ' + formatDuration(start.valueOf() - now.valueOf()),
+                });
+
+                $('<span class="noc-presence-when">')
+                    .text('starts ' + formatWhenInZone(start, selectedTimezone))
+                    .appendTo($head);
+            },
+            'Nobody is scheduled to come online.'
+        );
+
+        $('#noc-online-count').text(peopleLabel(onlineShown, online.length));
+        $('#noc-soon-count').text(peopleLabel(nextShown, nextTotal));
+    }
+
+    // While a search is running the denominator stays visible, so "1 of 8"
+    // still tells you the person is one of eight rather than the only one.
+    function peopleLabel(shown, total) {
+        if (!total) { return ''; }
+        var noun = total === 1 ? ' person' : ' people';
+        return (searchQuery ? shown + ' of ' + total : String(total)) + noun;
+    }
+
+    function noMatchText() {
+        return 'No match for \u201c' + searchQuery + '\u201d';
+    }
+
+    // A fill that never quite vanishes while there is still time on the clock.
+    // Without it the last few minutes render as a sub-pixel sliver, so "nearly
+    // done" and "done" look identical.
+    var GAUGE_MIN_FILL_PCT = 5;
+
+    /* The hourglass. Both halves use it and both DRAIN, because both are
+       measuring the same thing: how long until the next change. A short bar
+       always means "something is about to happen", whether that's a shift
+       ending or a shift starting.
+
+       The denominators differ, and have to:
+         online  → the shift's own length. Exact.
+         up next → the longest gap the rotation puts between two consecutive
+                   shift starts, which getLongestGapBetweenShiftStarts() derives
+                   from the shifts actually in use (9h today). A wait longer
+                   than that — a weekend, a holiday — pins the bar full, and the
+                   text beside it carries the real figure. */
+    function appendGauge($head, options) {
+        var remaining = Math.max(0, options.remaining);
+        if (options.span <= 0) { return; }
+
+        var pct = Math.min(100, remaining / options.span * 100);
+        if (remaining > 0) { pct = Math.max(pct, GAUGE_MIN_FILL_PCT); }
+
+        $('<span class="noc-gauge">')
+            .toggleClass('noc-gauge--inline', !options.label)
+            .attr('data-tip', formatDuration(remaining) + ' of ' + formatDuration(options.span))
+            .append($('<span class="noc-gauge-fill">')
+                .css({ width: pct + '%', background: options.color }))
+            .appendTo($head);
+
+        // Optional: the presence panel needs the figure spelled out beside the
+        // bar, but in a roster row the relative line is already that label.
+        if (options.label) {
+            $('<span class="noc-gauge-eta">').text(options.label).appendTo($head);
+        }
+    }
+
+    function shiftColorOf(group) {
+        var shift = getShift(group.members[0].shiftId);
+        return shift ? shift.color : 'var(--nb-muted-dark)';
+    }
+
+    // Returns how many people were actually drawn, so the panel heading can
+    // report "1 of 8" while a search is narrowing things down.
+    function renderPresenceGroups($container, groups, decorate, emptyText, avatarClass) {
+        $container.empty();
+        var shown = 0;
+
+        groups.forEach(function (group) {
+            // A group with no match disappears whole, header included —
+            // otherwise the shift name and its countdown would sit above
+            // nothing.
+            var matching = group.members.filter(matchesSearch);
+            if (!matching.length) { return; }
+            shown += matching.length;
+
+            var shift = getShift(group.members[0].shiftId);
+            var $group = $('<div class="noc-presence-group">').appendTo($container);
+
+            var $head = $('<div class="noc-presence-group-head">').appendTo($group);
+            $('<span class="noc-presence-dot">').css('background', shift ? shift.color : 'var(--nb-muted-dark)').appendTo($head);
+            $('<span class="noc-presence-shift">').text(shift ? shift.label : 'Not scheduled').appendTo($head);
+            decorate(group, $head);
+
+            // Team order, so members of a team sit together. The run breaks are
+            // marked so a little air can separate one team from the next
+            // without a second layer of headings.
+            var $people = $('<div class="noc-presence-people">').appendTo($group);
+            var previousTeam = null;
+
+            matching.slice().sort(compareByTeam).forEach(function (member, index) {
+                var team = getPrimaryTeam(member.teams);
+                renderPersonChip(member, avatarClass)
+                    .toggleClass('is-team-start', index > 0 && team !== previousTeam)
+                    .appendTo($people);
+                previousTeam = team;
+            });
+        });
+
+        if (!shown) {
+            // Distinguishes "nobody is on" from "nobody here matches what you
+            // typed" — the second is a statement about the filter, not the world.
+            $('<div class="noc-presence-empty">')
+                .text(searchQuery ? noMatchText() : emptyText)
+                .appendTo($container);
+        }
+
+        return shown;
+    }
+
+    // Same avatar and name language as a roster row, one density down. The ring
+    // carries status exactly as it does there — green and breathing for someone
+    // on shift, neutral for someone not on yet — so "green means live" holds
+    // everywhere on the page rather than only in the table.
+    function renderPersonChip(member, statusClass) {
+        var $chip = $('<div class="noc-person">');
+        $('<div class="noc-avatar">').addClass(statusClass).text(initials(member.name)).appendTo($chip);
+
+        var $id = $('<div class="noc-person-id">').appendTo($chip);
+        $('<div class="noc-person-name">').text(member.name).appendTo($id);
+
+        var primary = getPrimaryTeam(member.teams);
+        $('<div class="noc-person-team">')
+            .css('color', primary ? teamColors(primary).fg : '')
+            .text(member.teams.join(' · ') || '—')
+            .appendTo($id);
+        return $chip;
+    }
+
+    // Preserves first-seen group order, which keeps the roster's own sort
+    // (soonest first) intact.
+    function groupBy(items, keyOf) {
+        var groups = [];
+        var index = {};
+
+        items.forEach(function (item) {
+            var key = keyOf(item);
+            if (!index[key]) {
+                index[key] = { key: key, members: [] };
+                groups.push(index[key]);
+            }
+            index[key].members.push(item);
+        });
+
+        return groups;
+    }
+
+    /* ==================================================================
+       Roster rendering : shift lanes + member rows + the 7-day strip
+       ================================================================== */
+    function renderRosterBoard() {
+        var now = nowRef();
+        var weekDays = buildWeekWindow();
+        var $tbody = $('#noc-tbody').empty();
+
+        // These are team-base calendar days — a shift belongs to an IST date —
+        // so the range says which zone it is counting in. The page date header
+        // above is the viewer's date, and the two legitimately differ.
+        $('#noc-roster-week-head').text(
+            weekDays[0].date.format('MMM D') + ' – ' + weekDays[weekDays.length - 1].date.format('MMM D')
+            + ' ' + nowRef().tz(getScheduleTimezone()).format('z')
+        );
+
+        var byShift = {};
+        roster.members.forEach(function (member) {
+            var laneId = member.shiftId || UNSCHEDULED_LANE;
+            (byShift[laneId] = byShift[laneId] || []).push(member);
+        });
+
+        // getRoster() returns members already sorted active-first, and grouping
+        // preserves that order inside each lane.
+        getShifts().forEach(function (shift) {
+            if (byShift[shift.id]) { renderLane(shift, byShift[shift.id], weekDays, now, $tbody); }
+        });
+        if (byShift[UNSCHEDULED_LANE]) {
+            renderLane(null, byShift[UNSCHEDULED_LANE], weekDays, now, $tbody);
+        }
+
+        // Hiding rows can empty the board completely; this is what stands in.
+        $('<tr class="noc-roster-empty is-filtered-out">')
+            .append($('<td colspan="5">'))
+            .appendTo($tbody);
+    }
+
+    // One lane header + its members. `shift` is null for the catch-all lane
+    // holding anyone with no assignment covering today.
+    function renderLane(shift, members, weekDays, now, $tbody) {
+        var laneId = shift ? shift.id : UNSCHEDULED_LANE;
+        var liveCount = members.filter(function (m) { return m.status === 'active'; }).length;
+
+        var $inner = $('<div class="noc-lane-inner">');
+        if (shift) { $inner.css('--lane-color', shift.color); }
+
+        // Left column — the counterpart to a timezone name in the chart above.
+        var $label = $('<div class="noc-lane-label">').appendTo($inner);
+        $('<div class="noc-lane-name">').text(shift ? shift.label : 'Not scheduled').appendTo($label);
+
+        $('<div class="noc-lane-count">').appendTo($label);   // filled by renderLaneCount()
+
+        // Right column — the timeline, starting where the chart's does.
+        var $main = $('<div class="noc-lane-main">').appendTo($inner);
+        if (shift) { renderLaneBar(shift).appendTo($main); }
+
+        $('<tr class="noc-lane">')
+            .toggleClass('is-live', liveCount > 0)
+            .attr('data-lane-header', laneId)
+            .attr('data-lane-total', members.length)
+            .attr('data-lane-live', liveCount)
+            .append($('<td colspan="5">').append($inner))
+            .appendTo($tbody);
+
+        // Working now first, then team — the same reading as the presence chips
+        // above, so the two halves of the page agree on how a list is ordered.
+        members.slice().sort(compareByStatusThenTeam).forEach(function (member) {
+            $tbody.append(renderMemberRow(member, laneId, weekDays, now));
+        });
+    }
+
+    // The shift drawn against the SELECTED timezone's clock. The chart up top
+    // only draws shift blocks on the India row, so this is the one place that
+    // shows where the shift lands in the reader's own day — including whether
+    // it crosses their midnight.
+    function renderLaneBar(shift) {
+        var $wrap = $('<div class="noc-lane-bar">');
+        var $bar = $('<div class="noc-bar-cell">').appendTo($wrap);
+
+        // The times ride on the block itself — a wide band of colour that was
+        // otherwise carrying a label the lane already states two inches left.
+        // 18% keeps the caption off blocks too narrow to hold it, which at the
+        // board's min-width is about the point where it stops fitting.
+        // Both zones when the block can hold them, the reader's own clock alone
+        // when it can't — that one matches the hour ruler directly beneath.
+        var canonical = canonicalShiftInstants(shift);
+        var ownClock = formatRangeWithZone(canonical, selectedTimezone);
+
+        // Only offer the two-zone caption when there are two zones to show —
+        // reading IST would otherwise print the identical range twice.
+        var captions = selectedTimezone === getScheduleTimezone()
+            ? [ownClock]
+            : [formatRangeWithZone(canonical, getScheduleTimezone()) + '  ·  ' + ownClock, ownClock];
+
+        var $shiftRow = $('<div class="noc-bar-row noc-bar-row--shift">').appendTo($bar);
+        renderShiftBlocksInto($shiftRow, shift, captions);
+
+        var $labelsRow = $('<div class="noc-bar-row noc-bar-row--labels">')
+            .css('background', buildClockGradientCss(selectedTimezone))
+            .appendTo($bar);
+        renderHourMarksInto($labelsRow, buildHourMarks(selectedTimezone));
+
+        // Appended to the wrapper, not the bar cell: the cell clips its overflow
+        // (which is what keeps shift blocks inside the window) and would slice
+        // the orb off the top of the line.
+        $('<div class="noc-now-line noc-now-line--lane">').appendTo($wrap);
+        $('<div class="noc-ref-line">').appendTo($wrap);
+        return $wrap;
+    }
+
+    // Clones before converting: moment's .tz(zone) is a mutator, so formatting a
+    // shift's instants in a second zone used to rewrite the object in place. It
+    // happened to read correctly because callers pass a freshly built object, but
+    // any reuse would have silently shown the wrong zone.
+    function formatRange(instants, tz) {
+        return instants.start.clone().tz(tz).format('h:mm a')
+            + ' – ' + instants.end.clone().tz(tz).format('h:mm a');
+    }
+
+    /* ---------------- one <tr> per member : who / last / next / 7-day strip ---------------- */
+    function renderMemberRow(member, laneId, weekDays, now) {
+        var statusMeta = STATUS_META[member.status];
+
+        var $tr = $('<tr class="noc-row">')
+            .attr('data-row', member.id)
+            .attr('data-search', searchKeyFor(member))
+            .attr('data-status', member.status)
+            .attr('data-lane', laneId);
+
+        // --- who ---
+        var $tdMember = $('<td class="noc-td-member">');
+        var $top = $('<div class="noc-member-top">');
+        $('<div class="noc-avatar">').addClass(statusMeta.cls).text(initials(member.name)).appendTo($top);
+        var $idBlock = $('<div class="noc-member-id">');
+        $('<div class="noc-member-name">').text(member.name).appendTo($idBlock);
+        $('<div class="noc-status">').addClass(statusMeta.cls).append(
+            $('<span class="noc-status-dot">'),
+            $('<span>').text(statusMeta.label)
+        ).appendTo($idBlock);
+        $tdMember.append($top.append($idBlock));
+
+        // --- team ---
+        var $tdTeam = $('<td class="noc-td-team">').append(renderTeams(member.teams));
+
+        // --- last shift ---
+        var $tdLast = $('<td class="noc-td-when">').append(
+            member.lastShift ? whenCell(member.lastShift.end, now, 'ended') : noneCell()
+        );
+
+        // --- next up : someone mid-shift cares when it ends, not when tomorrow's
+        //     one starts, so the column swaps to that for them. ---
+        var $tdNext = $('<td class="noc-td-when">').append(
+            member.status === 'active'
+                ? whenCell(member.shift.end, now, 'ends', { gauge: {
+                    remaining: member.shift.end.valueOf() - now.valueOf(),
+                    span: member.shift.end.valueOf() - member.shift.start.valueOf(),
+                    color: getShift(member.shiftId).color,
+                } })
+                : (member.nextStart
+                    ? whenCell(member.nextStart, now, 'starts', { proximity: true })
+                    : noneCell())
+        );
+
+        // --- 7-day strip ---
+        var $tdWeek = $('<td class="noc-td-week">').append(renderWeekStrip(member, weekDays));
+
+        return $tr.append($tdMember, $tdTeam, $tdLast, $tdNext, $tdWeek);
+    }
+
+    /* Team colours. Deliberately low-saturation: the board already spends its
+       strong colour on shift blocks and its semantic colour on status, so team
+       is a third axis that has to be legible without competing with either.
+       Assigned by position in the team list, so adding a team to teamOrder — or
+       simply putting one on a member — gives it a colour with nothing to
+       register. Wraps if there are ever more teams than entries. */
+    var TEAM_PALETTE = [
+        { fg: '#2f5d8a', bg: '#e6eef6' },
+        { fg: '#1f6e76', bg: '#dff0f1' },
+        { fg: '#8a5a2f', bg: '#f7ece1' },
+        { fg: '#6b4c6e', bg: '#f1e7f3' },
+        { fg: '#4a6b45', bg: '#e8f0e6' },
+        { fg: '#7d4a4a', bg: '#f7e8e8' },
+    ];
+    var TEAM_NEUTRAL = { fg: 'var(--nb-text-muted)', bg: 'var(--nb-muted-light)' };
+
+    function teamColors(team) {
+        var index = getAllTeams().indexOf(team);
+        return index === -1 ? TEAM_NEUTRAL : TEAM_PALETTE[index % TEAM_PALETTE.length];
+    }
+
+    function renderTeams(teams) {
+        if (!teams || !teams.length) { return $('<div class="noc-team-none">').text('—'); }
+
+        var $wrap = $('<div class="noc-teams">');
+        teams.forEach(function (team) {
+            var colors = teamColors(team);
+            $('<span class="noc-team-pill">')
+                .css({ background: colors.bg, color: colors.fg })
+                .text(team)
+                .appendTo($wrap);
+        });
+        return $wrap;
+    }
+
+    /* options: { proximity, gauge }
+       `proximity` tints the relative line by how soon it is, so the column can
+       be scanned for "who is back soon" instead of read row by row.
+       `gauge` is passed for someone mid-shift: the bar states how far through
+       they are, which is the one case here with an honest denominator. The two
+       are mutually exclusive by design — a coloured bar and coloured text on one
+       line would be two encodings competing for the same glance. */
+    function whenCell(instant, now, verb, options) {
+        var settings = options || {};
+        var delta = instant.valueOf() - now.valueOf();
+        var relative = delta >= 0
+            ? verb + ' in ' + formatDuration(delta)
+            : verb + ' ' + formatDuration(delta) + ' ago';
+
+        // Always named: "Today, 3:30 am" reads as the viewer's clock and is the
+        // viewer's clock, but nothing said so until now.
+        var $cell = $('<div>').append(
+            $('<div class="noc-when-abs">')
+                .text(formatWhen(instant) + ' ' + instant.clone().tz(selectedTimezone).format('z'))
+        );
+
+        var $relative = $('<div class="noc-when-rel">')
+            .addClass(settings.proximity ? proximityClass(delta) : '')
+            .text(relative)
+            .appendTo($cell);
+
+        if (settings.gauge) {
+            // Inline rather than on a line of its own: the row's height is set
+            // by the 7-day strip, and staying on this line cannot change it.
+            appendGauge($relative, settings.gauge);
+        }
+
+        return $cell;
+    }
+
+    // Absolute distance, not a fraction — proximity needs no denominator, which
+    // is why it works on a column where a gauge cannot.
+    var PROXIMITY_SOON_MS = 60 * 60 * 1000;
+    var PROXIMITY_NEAR_MS = 6 * 60 * 60 * 1000;
+
+    function proximityClass(delta) {
+        if (delta < 0) { return ''; }
+        if (delta <= PROXIMITY_SOON_MS) { return 'is-soon'; }
+        if (delta <= PROXIMITY_NEAR_MS) { return 'is-near'; }
+        return 'is-distant';
+    }
+
+    function noneCell() {
+        return $('<div class="noc-when-none">').text('—');
+    }
+
+    function buildWeekWindow() {
+        var today = nowRef().tz(getScheduleTimezone()).startOf('day');
+        var days = [];
+        for (var offset = -WEEK_WINDOW_BEFORE; offset <= WEEK_WINDOW_AFTER; offset++) {
+            var date = today.clone().add(offset, 'days');
+            days.push({ date: date, dateStr: date.format('YYYY-MM-DD'), isToday: offset === 0 });
+        }
+        return days;
+    }
+
+    // getDayState() hands back raw facts — { key, shiftId, holidayName } — and
+    // the wording of the cell tooltip is decided here.
+    function describeDayState(state) {
+        if (state.key === 'holiday') { return state.holidayName; }
+        if (state.key === 'leave') { return 'On leave'; }
+        if (state.key === 'off') { return 'Weekly off'; }
+        if (state.key === 'not-scheduled') { return 'Not scheduled'; }
+
+        var shift = getShift(state.shiftId);
+        return shift.label + ' · ' + formatShiftHours(shift.id) + ' IST';
+    }
+
+    function renderWeekStrip(member, weekDays) {
+        var $week = $('<div class="noc-week">');
+        var $cells = $('<div class="noc-week-cells">').appendTo($week);
+
+        weekDays.forEach(function (day) {
+            var state = getDayState(member.id, day.dateStr);
+            var $cell = $('<div class="noc-week-day">')
+                .addClass('is-' + state.key)
+                .toggleClass('is-today', day.isToday)
+                .attr('data-tip', day.date.format('ddd, MMM D') + ' — ' + describeDayState(state))
+                .text(day.date.format('ddd'));
+            if (state.shiftId) { $cell.css('--wd-color', getShift(state.shiftId).color); }
+            $cell.appendTo($cells);
+        });
+
+        var $marks = $('<div class="noc-week-marks">').appendTo($week);
+        addWeekMark($marks, weekDays, member.lastShift ? member.lastShift.dateStr : null, 'Last');
+        addWeekMark($marks, weekDays, member.nextStart
+            ? member.nextStart.clone().tz(getScheduleTimezone()).format('YYYY-MM-DD')
+            : null, 'Next');
+        return $week;
+    }
+
+    // Falls outside the seven-day window? Then no marker — the text columns
+    // still carry the exact answer.
+    function addWeekMark($marks, weekDays, dateStr, label) {
+        if (!dateStr) { return; }
+        var column = -1;
+        weekDays.forEach(function (day, index) {
+            if (day.dateStr === dateStr) { column = index; }
+        });
+        if (column === -1) { return; }
+
+        $('<span class="noc-week-mark">')
+            .css('grid-column', String(column + 1))
+            .text('▴ ' + label)
+            .appendTo($marks);
+    }
+
+    /* Two markers, and they mean different things.
+
+       The dark line with the orb is ALWAYS actual current time — that never
+       changes meaning, wherever it appears. When the board is shifted to another
+       day, real now falls outside the window and the line simply isn't drawn.
+
+       The dashed accent line is the instant being VIEWED, and only exists while
+       shifted. Dashed because it is a marker rather than a live position, accent
+       because that is already the page's colour for "a time you chose" — the
+       crosshair uses it too. The per-row time chips follow whichever line the
+       board is actually answering for. */
+    function tickLiveClocks() {
+        if (!windowStart) { return; }
+
+        var reference = nowRef();
+
+        // The window is one calendar day and is only rebuilt by the 60s
+        // re-renders. Without this, midnight leaves the reference past windowEnd
+        // where pctInWindow() clamps to 100 — so the line pins to the far right
+        // for up to a minute before snapping back. Everything else in the strips
+        // is identical day to day, so re-anchoring here is enough. Checked
+        // against the reference, not real now, or a shifted board would reset
+        // the window every single tick.
+        if (reference.isBefore(windowStart) || !reference.isBefore(windowEnd)) { resetWindow(); }
+
+        // Real now: positioned always, hidden when it falls outside the window.
+        var actual = moment();
+        var actualInWindow = !actual.isBefore(windowStart) && actual.isBefore(windowEnd);
+        $('.noc-now-line')
+            .css('left', pctInWindow(actual) + '%')
+            .toggleClass('is-out-of-window', !actualInWindow)
+            .toggleClass('is-secondary', isTimeShifted());
+
+        var pct = pctInWindow(reference);
+        $('.noc-ref-line').css('left', pct + '%').toggleClass('is-on', isTimeShifted());
+
+        // Each timezone row states its own local time, right at the line.
+        var $chips = $('.noc-now-chip').toggleClass('is-reference', isTimeShifted());
+        $chips.each(function () {
+            var $chip = $(this);
+            var local = reference.clone().tz($chip.attr('data-tz'));
+            $chip.find('.noc-now-chip-time').text(local.format('h:mm a'));
+            // 'z' gives the live abbreviation, so it follows DST on its own —
+            // MST/MDT, EST/EDT, IST/IDT — rather than being pinned in the data.
+            $chip.find('.noc-now-chip-zone').text(local.format('z'));
+        });
+
+        // Measured after the text is in, so the threshold tracks the real width
+        // rather than an estimate that goes stale when the format changes.
+        var chipWidth = $chips.first().outerWidth() || 0;
+        var stripWidth = $('#noc-tzcmp-tbody .noc-bar-row--labels').first().width() || 0;
+        $chips.css('left', pct + '%').toggleClass('is-flipped', shouldFlipChip(pct, chipWidth, stripWidth));
+    }
+
+    /* ==================================================================
+       Crosshair : hover anywhere on a timeline to read that instant in the
+       selected zone, with the team-base conversion underneath. Bound by
+       delegation, so it survives the 60-second re-renders without needing to be
+       re-attached, and throttled to one update per frame.
+       ================================================================== */
+    var CROSSHAIR_TRACKS = '#noc-tzcmp-now-overlay, .noc-lane-bar';
+    var crosshairFrame = null;
+
+    function initCrosshair() {
+        $(document)
+            .on('mousemove', CROSSHAIR_TRACKS, function (event) {
+                var track = this;
+                var x = event.clientX;
+                var y = event.clientY;
+                if (crosshairFrame) { return; }
+                crosshairFrame = requestAnimationFrame(function () {
+                    crosshairFrame = null;
+                    moveCrosshair(track, x, y);
+                });
+            })
+            .on('mouseleave', CROSSHAIR_TRACKS, function () {
+                $(this).removeClass('is-crosshair-on');
+            });
+    }
+
+    function moveCrosshair(track, clientX, clientY) {
+        if (!windowStart) { return; }
+
+        var $track = $(track).addClass('is-crosshair-on');
+        var $line = $track.children('.noc-hover-line');
+        if (!$line.length) { $line = buildCrosshair($track); }
+        var $chip = $track.children('.noc-hover-chip');
+
+        var rect = track.getBoundingClientRect();
+        if (!rect.width) { return; }
+
+        var pct = Math.max(0, Math.min(100, (clientX - rect.left) / rect.width * 100));
+        var at = moment(windowStart.valueOf() + (windowEnd.valueOf() - windowStart.valueOf()) * pct / 100);
+
+        $chip.find('.noc-hover-row--base').text(formatWhenInZone(at, getScheduleTimezone()));
+        $chip.find('.noc-hover-row--selected').text(formatWhenInZone(at, selectedTimezone));
+
+        // Follows the pointer's row so the reading lands where the eye already
+        // is, clamped so it can't hang off the top or bottom of the track.
+        var chipHeight = $chip.outerHeight();
+        var top = Math.max(chipHeight / 2, Math.min(rect.height - chipHeight / 2, clientY - rect.top));
+
+        $line.css('left', pct + '%');
+        $chip.css({ left: pct + '%', top: top + 'px' })
+            .toggleClass('is-flipped', shouldFlipChip(pct, $chip.outerWidth(), rect.width));
+    }
+
+    // Selected zone on top, team base underneath: the pointer is being moved in
+    // the reader's own clock, so that's the reading they're steering by — the
+    // conversion is what they came to look up.
+    function buildCrosshair($track) {
+        var $line = $('<div class="noc-hover-line">');
+        $track.append(
+            $line,
+            $('<div class="noc-hover-chip">').append(
+                $('<span class="noc-hover-row noc-hover-row--selected">'),
+                $('<span class="noc-hover-row noc-hover-row--base">')
+            )
+        );
+        return $line;
+    }
+
+    var NOW_CHIP_GAP = 10;    // keep in step with the offsets on .noc-now-chip
+    var NOW_CHIP_EDGE = 28;   // clearance kept between the chip and the strip edge
+
+    // The bar cell clips its overflow, so a chip that doesn't fit is a chip that
+    // gets cut in half. Move to the left of the line well before that point —
+    // but only if the left side has the room, otherwise the line just after
+    // midnight IST would flip itself straight off the other edge.
+    //
+    // The line sweeps right all day and then jumps back to the far left at
+    // midnight; both ends of that cycle land squarely inside one branch (at the
+    // far left the right side has room to spare, at the far right the left side
+    // does), so the reset can't leave the chip oscillating at a boundary.
+    function shouldFlipChip(pct, chipWidth, stripWidth) {
+        if (!stripWidth || !chipWidth) { return false; }
+
+        var linePx = pct / 100 * stripWidth;
+        var needed = chipWidth + NOW_CHIP_GAP + NOW_CHIP_EDGE;
+        return (stripWidth - linePx) < needed && linePx >= needed;
+    }
+</script>
