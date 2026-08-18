@@ -85,7 +85,7 @@ var SCHEDULE_DATA = {
         { id: 'regular', label: 'Regular shift', color: '#C9A227', startTime: '10:00', endTime: '19:00' },
         { id: 'afternoon', label: 'Afternoon shift', color: '#D97A5E', startTime: '12:30', endTime: '21:30' },
         { id: 'night', label: 'Night shift', color: '#4A5C9A', startTime: '21:30', endTime: '06:00' },
-        { id: 'late-night', label: 'Late Night shift', color: '#6B4C6E', startTime: '15:00', endTime: '00:00' },
+        { id: 'late-night', label: 'Late Night shift', color: '#6B4C6E', startTime: '14:00', endTime: '23:00' },
     ],
 
     /* ---------------------------------------------------------------------
