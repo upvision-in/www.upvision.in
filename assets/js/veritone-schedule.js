@@ -45,7 +45,7 @@ var SCHEDULE_DATA = {
     members: [
         { id: 'shital', name: 'Shital', shiftId: 'afternoon', weeklyOffId: 'sat-sun', team: 'NOC' },
         { id: 'priyen', name: 'Priyen', shiftId: 'afternoon', weeklyOffId: 'sat-sun', team: 'SwDevOps' },
-        { id: 'ankit', name: 'Ankit', shiftId: 'morning', weeklyOffId: 'sun-mon', team: 'SwDevOps' },
+        { id: 'ankit', name: 'Ankit', shiftId: 'late-evening', weeklyOffId: 'sat-sun', team: 'SwDevOps' },
         { id: 'vedant', name: 'Vedant', shiftId: 'night', weeklyOffId: 'sat-sun', team: 'CloudOps' },
         { id: 'viral', name: 'Viral', shiftId: 'morning', weeklyOffId: 'fri-sat', team: 'CloudOps' },
         { id: 'parag', name: 'Parag', shiftId: 'afternoon', weeklyOffId: 'fri-sat', team: 'CloudOps, NOC' },
@@ -84,8 +84,8 @@ var SCHEDULE_DATA = {
         { id: 'morning', label: 'Morning shift', color: '#7FAF8A', startTime: '06:00', endTime: '15:00' },
         { id: 'regular', label: 'Regular shift', color: '#C9A227', startTime: '10:00', endTime: '19:00' },
         { id: 'afternoon', label: 'Afternoon shift', color: '#D97A5E', startTime: '12:30', endTime: '21:30' },
+        { id: 'late-evening', label: 'Late Evening shift', color: '#6ba49c', startTime: '14:00', endTime: '23:00' },
         { id: 'night', label: 'Night shift', color: '#4A5C9A', startTime: '21:30', endTime: '06:00' },
-        { id: 'late-night', label: 'Late Night shift', color: '#6B4C6E', startTime: '14:00', endTime: '23:00' },
     ],
 
     /* ---------------------------------------------------------------------
@@ -246,7 +246,7 @@ function compareByTeam(a, b) {
 
 // The longest anyone normally waits for a shift to begin: the biggest gap
 // between consecutive start times among the shifts in use, wrapping midnight.
-// Today's three shifts (06:00 / 12:30 / 21:30) give 9h; add late-night at 15:00
+// Today's three shifts (06:00 / 12:30 / 21:30) give 9h; add late-evening at 15:00
 // and it becomes 8.5h on its own. Derived rather than hand-picked so it stays
 // honest when the rotation changes.
 function getLongestGapBetweenShiftStarts() {

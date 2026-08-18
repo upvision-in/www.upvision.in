@@ -2473,7 +2473,7 @@ description: UpVision Team Schedule.
 
         var onlineShown = renderPresenceGroups(
             $('#noc-online-body'),
-            groupBy(online, function (member) { return member.shiftId; }),
+            sortGroupsByShiftOrder(groupBy(online, function (member) { return member.shiftId; })),
             function (group, $head) {
                 var shiftInstants = group.members[0].shift;
 
@@ -2660,6 +2660,21 @@ description: UpVision Team Schedule.
         });
 
         return groups;
+    }
+
+    // Reorders shift groups to match the legend's clock order instead of
+    // whichever member happened to sort first within the group. Only for
+    // panels where every group is shown — "Up next" keeps its own soonest-first
+    // order because it deliberately keeps just the one group that is next.
+    function sortGroupsByShiftOrder(groups) {
+        var order = {};
+        getShifts().forEach(function (shift, index) { order[shift.id] = index; });
+
+        return groups.slice().sort(function (a, b) {
+            var aOrder = order[a.members[0].shiftId];
+            var bOrder = order[b.members[0].shiftId];
+            return aOrder - bOrder;
+        });
     }
 
     /* ==================================================================
