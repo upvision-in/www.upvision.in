@@ -24,7 +24,7 @@ description: UpVision Team Schedule.
             <div class="noc-panel">
                 <div class="noc-subrow">
                     <div class="noc-holidays">
-                        <div class="noc-holidays-label">Upcoming Holidays</div>
+                        <a class="noc-holidays-label" href="{{ '/public-holidays' | relative_url }}" target="_blank" rel="noopener">Upcoming Holidays</a>
                         <div class="noc-holidays-list" id="noc-holidays-list"></div>
                     </div>
                     <div class="noc-legend" id="noc-legend"></div>
@@ -156,6 +156,11 @@ description: UpVision Team Schedule.
                     <div class="noc-now-overlay" id="noc-tzcmp-now-overlay">
                         <div class="noc-now-line" id="noc-tzcmp-now-line"></div>
                         <div class="noc-ref-line"></div>
+                        <div class="noc-select-band" id="noc-tzcmp-select-band"></div>
+                        <div class="noc-select-chip" id="noc-tzcmp-select-chip">
+                            <span class="noc-hover-row noc-hover-row--selected"></span>
+                            <span class="noc-hover-row noc-hover-row--base"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,6 +243,11 @@ description: UpVision Team Schedule.
         /* A lane row's own left border (4px) + left padding (12px). Backed out
            of the lane label width so its timeline lines up with the chart's. */
         --nb-lane-inset: 16px;
+        /* .noc-board's own left border (1px) + padding (16px). A sticky column
+           only covers from its own box outward, not this outer inset, so
+           anything scrolling underneath it can still peek through that sliver
+           of the board unless a sticky element explicitly backs it out too. */
+        --nb-board-inset: 17px;
 
         width: 100%;
         font-family: 'Karla', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -447,7 +457,9 @@ description: UpVision Team Schedule.
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
-        justify-content: flex-end;
+        /* Same reasoning as .noc-legend: right-aligning reads fine on one
+           line, but ragged once the pills need a second one. */
+        justify-content: flex-start;
     }
 
     .noc-tz-pill {
@@ -496,13 +508,18 @@ description: UpVision Team Schedule.
     }
 
     .noc-holidays-label {
-        font-size: var(--fs-meta);
+        font-size: var(--fs-body);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: var(--nb-text-muted);
         white-space: nowrap;
         flex: none;
+        text-decoration: none;
+    }
+
+    .noc-holidays-label:hover {
+        text-decoration: underline;
     }
 
     /* nowrap is what makes the rule above work: it gives the block a real
@@ -525,6 +542,12 @@ description: UpVision Team Schedule.
         white-space: nowrap;
     }
 
+    .noc-holidays-empty {
+        font-size: var(--fs-body);
+        color: var(--nb-text-muted);
+        white-space: nowrap;
+    }
+
     .noc-holiday-chip .date {
         font-weight: 700;
     }
@@ -535,7 +558,12 @@ description: UpVision Team Schedule.
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        justify-content: flex-end;
+        /* flex-start, not flex-end: this box is as wide as the row's leftover
+           space, and once the items need more than one line, flex-end
+           right-aligns each line independently — the second line reads as
+           shoved into the middle of the row instead of continuing to read
+           left to right under the first. */
+        justify-content: flex-start;
         align-content: center;
         gap: 12px;
         font-size: var(--fs-body);
@@ -659,7 +687,21 @@ description: UpVision Team Schedule.
         position: sticky;
         left: 0;
         background: var(--nb-surface);
-        z-index: 5;
+        /* Above #noc-tzcmp-now-overlay (z-index 20) and everything drawn into
+           it — the now/ref/select lines, the crosshair, the shift blocks. That
+           overlay scrolls with the timeline content while this label stays
+           pinned, so once the board is scrolled its content would otherwise
+           slide underneath and paint over the sticky zone name. */
+        z-index: 30;
+        /* A sticky element only covers its own box, which starts at .noc-board's
+           PADDING edge (left:0 sticks flush with that, not the board's outer
+           border) — so scrolled timeline content can still surface in the
+           board's own inset, just to this label's left, once scrolled far
+           enough that it lands there. A solid, blur-free box-shadow extends
+           this label's opaque backdrop that inset further left, with no layout
+           impact (unlike widening the cell itself, which would throw off the
+           column width the timeline lines up against). */
+        box-shadow: calc(-1 * var(--nb-board-inset)) 0 0 0 var(--nb-surface);
         padding-right: 10px;
         vertical-align: middle;
     }
@@ -819,18 +861,22 @@ description: UpVision Team Schedule.
         font-variant-numeric: tabular-nums;
     }
 
+    /* Each team's chips are grouped into their own .noc-presence-team-run so
+       the two gap sizes below are real gaps, not a margin on the run's first
+       chip — a margin there used to carry onto the next line whenever that
+       chip was the one that wrapped, reading as a stray indent instead of a
+       gap. Column-gap is the air between one team's run and the next;
+       row-gap is the space between wrapped lines. */
     .noc-presence-people {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px 16px;
     }
 
-    /* Air between one team's run of chips and the next. This is a wrapping row,
-       so a break that lands at the end of a line reads as an indent on the next
-       one rather than as a gap — the team name under each name is what still
-       carries the grouping when that happens. */
-    .noc-person.is-team-start {
-        margin-left: 16px;
+    .noc-presence-team-run {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
     .noc-person {
@@ -1615,6 +1661,73 @@ description: UpVision Team Schedule.
         animation: noc-ref-flash 0.45s ease-out;
     }
 
+    /* A dragged time range: solid accent border, near-transparent fill, so the
+       shift blocks underneath stay readable through it. Sits below the now/ref
+       lines (z-index 20/21) so a selection never hides where "now" actually is. */
+    .noc-select-band {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border: 2px solid var(--nb-accent);
+        background: rgba(42, 120, 214, 0.08);
+        border-radius: 2px;
+        z-index: 19;
+        pointer-events: none;
+        display: none;
+    }
+
+    .noc-select-band.is-visible {
+        display: block;
+    }
+
+    /* The selection's readout — same look and flip rule as the crosshair's
+       own chip (.noc-hover-chip), but shown whenever there's a selection
+       rather than only while the pointer is moving, and fixed to vertical
+       centre instead of following a live cursor Y. Opacity-based like the
+       hover chip, not display:none, so it stays measurable for the flip
+       check even the instant before it's shown. */
+    .noc-select-chip {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translate(8px, -50%);
+        z-index: 23;
+        background: var(--nb-accent);
+        color: #ffffff;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.12s ease;
+    }
+
+    .noc-select-chip.is-visible {
+        opacity: 1;
+    }
+
+    .noc-select-chip::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-right: 5px solid var(--nb-accent);
+    }
+
+    .noc-select-chip.is-flipped {
+        transform: translate(calc(-100% - 8px), -50%);
+    }
+
+    .noc-select-chip.is-flipped::after {
+        right: auto;
+        left: 100%;
+        border-right: 0;
+        border-left: 5px solid var(--nb-accent);
+    }
+
     /* Actual now, demoted while the board is shifted: still there as context,
        but thin, grey, dashed, and stripped of the orb and the pulse so it cannot
        be mistaken for what the page is answering for. */
@@ -1719,8 +1832,35 @@ description: UpVision Team Schedule.
             align-items: stretch;
         }
 
-        .noc-tz-pills {
-            justify-content: flex-start;
+        /* .noc-search and .noc-tz-block each carry a flex-basis (220px / 420px)
+           sized for the ROW layout above, where it caps a WIDTH. flex-basis
+           tracks the main axis, and flex-direction just flipped that axis to
+           vertical — so those same numbers were inflating each box into a
+           mostly-empty column that tall, with its real content (the input,
+           the pills) floating somewhere inside it. auto sizes each to its own
+           content once stacked instead. */
+        .noc-search,
+        .noc-tz-block {
+            flex: 1 1 auto;
+            max-width: none;
+        }
+
+        /* .noc-holidays is flex:0 0 auto above specifically so it never
+           shrinks — see that rule's comment — which held at the widths that
+           fix targeted, but below this width the block doesn't fit even on
+           its own full-width line, and flex-shrink:0 was forcing it to
+           overflow rather than ever get the chance to wrap. Letting it shrink
+           here, with min-width:0 to defeat flex's own default of never
+           shrinking under content size, is what lets flex-wrap on the list
+           actually engage — chips drop to their own lines instead of being
+           clipped off past the panel's edge. */
+        .noc-holidays {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .noc-holidays-list {
+            flex-wrap: wrap;
         }
 
         /* Both boards keep their min-width and scroll horizontally rather than
@@ -1789,7 +1929,8 @@ description: UpVision Team Schedule.
         initSearchBox();
         initDateControl();
         initCrosshair();
-        renderLegend();     // static: shift colours and names never change
+        initTimeSelection();
+        renderLegend();     // colours/names are static; the tz pill handler re-renders it for the conversion column
         renderBoard();
         setInterval(renderBoard, 60000);
         setInterval(tickLiveClocks, 1000);
@@ -1823,9 +1964,11 @@ description: UpVision Team Schedule.
                     $(this).addClass('is-selected');
                     // The chart has to redraw too now that the window is
                     // anchored to the selection, or the two boards would be
-                    // showing different 24 hours at the same x.
+                    // showing different 24 hours at the same x. The legend's
+                    // conversion column is keyed off the same selection.
                     renderBoard();
                     renderTimezoneCompare();
+                    renderLegend();
                 })
                 .appendTo($wrap);
         });
@@ -1945,31 +2088,98 @@ description: UpVision Team Schedule.
     }
 
     /* ---------------- Phase 2 piece: upcoming holidays ---------------- */
+    // Bounded to this month or next, not just "next 3 chronologically" — a
+    // holiday that's merely next in line but two-plus months out (e.g. 62
+    // days) reads as noise, not as "upcoming". A calendar-month window keeps
+    // that read stable wherever in the month "now" happens to fall, rather
+    // than a fixed day-count that changes meaning depending on the date.
     function renderHolidays() {
         var $list = $('#noc-holidays-list').empty();
-        var from = nowRef().tz(getScheduleTimezone()).format('YYYY-MM-DD');
+        var now = nowRef();
+        var tz = getScheduleTimezone();
+        var relevantThrough = now.clone().tz(tz).startOf('month').add(2, 'months');
 
-        getUpcomingHolidays(3, from).forEach(function (holiday) {
-            $('<div class="noc-holiday-chip">').append(
-                $('<span>').text('🎉'),
-                $('<span class="date">').text(moment(holiday.date, 'YYYY-MM-DD').format('MMM D') + ' —'),
-                $('<span>').text(holiday.name)
-            ).appendTo($list);
+        // 10 is just generous headroom for the month filter below to work
+        // with — the real cap (3) is applied after that filter, so a holiday
+        // just outside the window never displaces one just inside it.
+        var holidays = getUpcomingHolidays(10, now)
+            .filter(function (h) { return moment.tz(h.date, 'YYYY-MM-DD', tz).isBefore(relevantThrough); })
+            .slice(0, 3);
+
+        if (!holidays.length) {
+            $('<div class="noc-holidays-empty">').text('No upcoming public holidays this month or next.').appendTo($list);
+            return;
+        }
+
+        holidays.forEach(function (holiday) {
+            var outage = getHolidayOutageWindow(holiday.date);
+            // The chip only has room for the countdown; name + day of week
+            // (the date itself is already on the chip, so repeating it here
+            // would say nothing new) live in the hover instead.
+            $('<div class="noc-holiday-chip">')
+                .attr('data-tip', holiday.name + ' — ' + moment(holiday.date, 'YYYY-MM-DD').format('dddd'))
+                .append(
+                    $('<span>').text('🎉'),
+                    $('<span class="date">').text(moment(holiday.date, 'YYYY-MM-DD').format('MMM D') + ' —'),
+                    $('<span>').text(formatHolidayCountdown(outage, now))
+                ).appendTo($list);
         });
     }
 
+    // "in 62 days" while there's still a full day to go, a live countdown once
+    // inside the last day before the last pre-holiday shift ends, then — once
+    // that outage is under way — a live countdown to when the first shift
+    // after it starts. Matches the gauge's "time left" wording used elsewhere
+    // on the board rather than inventing a new voice for it.
+    function formatHolidayCountdown(outage, now) {
+        if (now.isSameOrAfter(outage.start)) {
+            return 'back in ' + formatDuration(outage.end.diff(now));
+        }
+        var hoursToStart = outage.start.diff(now, 'hours', true);
+        if (hoursToStart < 24) {
+            return 'in ' + formatDuration(outage.start.diff(now));
+        }
+        var days = Math.ceil(hoursToStart / 24);
+        return 'in ' + days + (days === 1 ? ' day' : ' days');
+    }
+
     /* ---------------- legend ---------------- */
+    // Same compact "6a"/"6:30p" formatting formatShiftHours uses, but applied to
+    // the shift's real today-occurrence converted into another zone instead of
+    // its raw team-base time string — so it can cross midnight and follows DST
+    // on its own.
+    function formatShiftHoursInZone(shift, tz) {
+        var instants = getShiftInstantsOn(shift.id, getScheduleToday());
+        return formatCompactClockInZone(instants.start, tz) + '–' + formatCompactClockInZone(instants.end, tz);
+    }
+
+    function formatCompactClockInZone(instant, tz) {
+        var at = instant.clone().tz(tz);
+        var meridiem = at.format('a').charAt(0);
+        return (at.minutes() === 0 ? at.format('h') : at.format('h:mm')) + meridiem;
+    }
+
     function renderLegend() {
         var $legend = $('#noc-legend').empty();
+        var teamZone = getScheduleTimezone();
+
         // Catalog order, not clock order — this is a colour key, and the order
-        // it reads best in is a judgement call left to the data file.
-        SCHEDULE_DATA.shifts.forEach(function (shift) {
+        // it reads best in is a judgement call left to the data file. Only
+        // shifts someone is actually on: a shift with nobody on it is noise in
+        // a key meant to explain what's on screen.
+        getShiftsInUse().forEach(function (shift) {
             var $item = $('<div class="noc-legend-item">');
             $('<span class="noc-legend-swatch">').css('background', shift.color).appendTo($item);
-            // Names the zone explicitly: with the lane headers now showing only
-            // the selected timezone, this is the one place the canonical hours
-            // a shift is *defined* in are stated.
-            $('<span>').text(shift.label + ' (' + formatShiftHours(shift.id) + ' IST)').appendTo($item);
+
+            // Only the selected zone in the text itself — the team-base (IST)
+            // hours a shift is actually *defined* in move to a hover instead,
+            // so the legend states one clock at a glance and the canonical one
+            // is still a hover away. Skipped when they're the same zone: a
+            // tooltip repeating what's already on screen answers nothing.
+            $('<span>').text(shift.label + ' (' + formatShiftHoursInZone(shift, selectedTimezone) + ' ' + moment.tz(selectedTimezone).format('z') + ')').appendTo($item);
+            if (selectedTimezone !== teamZone) {
+                $item.attr('data-tip', 'Team : ' + formatShiftHours(shift.id) + ' ' + moment.tz(teamZone).format('z'));
+            }
             $legend.append($item);
         });
 
@@ -2429,6 +2639,12 @@ description: UpVision Team Schedule.
         // which is the blank stub that flashes in the middle every minute.
         tickLiveClocks();
         fitShiftBlockLabels();
+
+        // The overlay (and any selection band in it) lives outside the tbody
+        // this function rebuilds, but resetWindow() above can still move it —
+        // a midnight rollover or a zone switch re-anchors windowStart/End, and
+        // the band has to redraw against the new window or it drifts.
+        renderSelectionBand();
     }
 
     var STATUS_META = {
@@ -2599,17 +2815,19 @@ description: UpVision Team Schedule.
             $('<span class="noc-presence-shift">').text(shift ? shift.label : 'Not scheduled').appendTo($head);
             decorate(group, $head);
 
-            // Team order, so members of a team sit together. The run breaks are
-            // marked so a little air can separate one team from the next
-            // without a second layer of headings.
+            // Team order, so members of a team sit together. Each run gets its
+            // own wrapper so the gap between teams is a real (wrap-safe) gap
+            // rather than a second layer of headings.
             var $people = $('<div class="noc-presence-people">').appendTo($group);
+            var $run = null;
             var previousTeam = null;
 
-            matching.slice().sort(compareByTeam).forEach(function (member, index) {
+            matching.slice().sort(compareByTeam).forEach(function (member) {
                 var team = getPrimaryTeam(member.teams);
-                renderPersonChip(member, avatarClass)
-                    .toggleClass('is-team-start', index > 0 && team !== previousTeam)
-                    .appendTo($people);
+                if (!$run || team !== previousTeam) {
+                    $run = $('<div class="noc-presence-team-run">').appendTo($people);
+                }
+                renderPersonChip(member, avatarClass).appendTo($run);
                 previousTeam = team;
             });
         });
@@ -2691,6 +2909,7 @@ description: UpVision Team Schedule.
         $('#noc-roster-week-head').text(
             weekDays[0].date.format('MMM D') + ' – ' + weekDays[weekDays.length - 1].date.format('MMM D')
             + ' ' + nowRef().tz(getScheduleTimezone()).format('z')
+            + ' (the team is based in India)'
         );
 
         var byShift = {};
@@ -3133,5 +3352,118 @@ description: UpVision Team Schedule.
         var linePx = pct / 100 * stripWidth;
         var needed = chipWidth + NOW_CHIP_GAP + NOW_CHIP_EDGE;
         return (stripWidth - linePx) < needed && linePx >= needed;
+    }
+
+    /* ==================================================================
+       Time-range selection : drag a rectangle across the "Timezones at a
+       Glance" overlay to pin a range instead of just hovering it — the
+       overlay already spans every row (team-base shift lanes + every zone's
+       hour strip), so one band drawn into it lines up against all of them at
+       once. Mouse-only for now; the drag is a distinct gesture from a plain
+       click, which is left alone so it doesn't fight the crosshair hover.
+       ================================================================== */
+    var SELECT_TRACK = '#noc-tzcmp-now-overlay';
+    var SELECT_DRAG_THRESHOLD_PX = 4;
+    var SELECT_SNAP_MS = 15 * 60 * 1000;
+    var selectionRange = null;   // { startMs, endMs } | null
+    var dragState = null;        // in-progress drag, cleared on mouseup
+
+    // Every zone on this board sits at a whole or 15/30/45-minute offset from
+    // UTC (US zones on the hour, IST at +5:30), so rounding the raw UTC
+    // instant to the nearest 15 minutes lands on an exact quarter-hour mark
+    // in every zone shown at once — no per-zone conversion needed here.
+    function snapToGrid(ms) {
+        return Math.round(ms / SELECT_SNAP_MS) * SELECT_SNAP_MS;
+    }
+
+    function initTimeSelection() {
+        $(document).on('mousedown', SELECT_TRACK, function (event) {
+            var rect = this.getBoundingClientRect();
+            if (!windowStart || !rect.width) { return; }
+
+            dragState = { rect: rect, startClientX: event.clientX, moved: false };
+            event.preventDefault(); // keeps the drag from also selecting page text
+        });
+
+        // Bound on document, not the track, so the drag keeps tracking even if
+        // the pointer strays outside the strip mid-gesture.
+        $(document).on('mousemove', function (event) {
+            if (!dragState) { return; }
+
+            if (!dragState.moved) {
+                if (Math.abs(event.clientX - dragState.startClientX) < SELECT_DRAG_THRESHOLD_PX) { return; }
+                dragState.moved = true; // a real drag, not a stray click
+            }
+
+            var startPct = clampPct((dragState.startClientX - dragState.rect.left) / dragState.rect.width * 100);
+            var endPct = clampPct((event.clientX - dragState.rect.left) / dragState.rect.width * 100);
+            var span = windowEnd.valueOf() - windowStart.valueOf();
+            var lo = Math.min(startPct, endPct), hi = Math.max(startPct, endPct);
+
+            var startMs = snapToGrid(windowStart.valueOf() + span * lo / 100);
+            var endMs = snapToGrid(windowStart.valueOf() + span * hi / 100);
+            // A drag that never leaves one 15-minute cell would otherwise snap
+            // to a zero-width, invisible selection — widen it to the smallest
+            // real range instead of losing the gesture.
+            if (endMs <= startMs) { endMs = startMs + SELECT_SNAP_MS; }
+
+            selectionRange = { startMs: startMs, endMs: endMs };
+            renderSelectionBand();
+        });
+
+        $(document).on('mouseup', function () { dragState = null; });
+
+        // A click landing outside the track clears the current selection —
+        // dragging a new one elsewhere already replaces it via the handler
+        // above, so this only has to catch "clicking away". Bound after the
+        // drag-start handler so a mousedown that begins a fresh drag (target
+        // is inside the track) isn't also read as "clicking away" from the
+        // selection that drag is about to replace.
+        $(document).on('mousedown', function (event) {
+            if (!selectionRange || $(event.target).closest(SELECT_TRACK).length) { return; }
+            selectionRange = null;
+            renderSelectionBand();
+        });
+    }
+
+    function clampPct(pct) { return Math.max(0, Math.min(100, pct)); }
+
+    // Recomputed from the stored instants on every render rather than cached
+    // as a percentage — pctInWindow() depends on windowStart/windowEnd, which
+    // move at midnight and whenever the selected zone changes, so redrawing
+    // from the real instants is what keeps the band from drifting.
+    function renderSelectionBand() {
+        var $band = $('#noc-tzcmp-select-band');
+        if (!selectionRange || !windowStart) {
+            $band.removeClass('is-visible');
+            $('#noc-tzcmp-select-chip').removeClass('is-visible');
+            return;
+        }
+
+        var leftPct = pctInWindow(moment(selectionRange.startMs));
+        var rightPct = pctInWindow(moment(selectionRange.endMs));
+        $band.addClass('is-visible').css({ left: leftPct + '%', width: (rightPct - leftPct) + '%' });
+        renderSelectionChip(leftPct, rightPct);
+    }
+
+    // Selected zone on top, team base underneath — same convention as the
+    // crosshair's own chip. Sits just right of the rectangle by default and
+    // flips to sit just left of its other edge when there's no room on the
+    // right, reusing the exact rule the crosshair chip already uses for a
+    // single point.
+    function renderSelectionChip(leftPct, rightPct) {
+        var $chip = $('#noc-tzcmp-select-chip');
+        var range = { start: moment(selectionRange.startMs), end: moment(selectionRange.endMs) };
+
+        $chip.find('.noc-hover-row--selected').text(formatRangeWithZone(range, selectedTimezone));
+        $chip.find('.noc-hover-row--base').text(formatRangeWithZone(range, getScheduleTimezone()));
+
+        var stripWidth = $('#noc-tzcmp-now-overlay').width() || 0;
+        var chipWidth = $chip.outerWidth() || 0;
+        var flip = shouldFlipChip(rightPct, chipWidth, stripWidth);
+
+        $chip.addClass('is-visible')
+            .css('left', (flip ? leftPct : rightPct) + '%')
+            .toggleClass('is-flipped', flip);
     }
 </script>

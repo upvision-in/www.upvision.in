@@ -23,7 +23,12 @@ nav.shrinked {
 
   img.shrink-only {
     opacity: 1;
-    left: -69px;
+    // Restated because `img` above (a less specific selector, but one that
+    // still declares these two properties) would otherwise win for them —
+    // per-property cascade, not per-rule, so a less specific rule can still
+    // leak through on the properties this one doesn't re-declare.
+    position: absolute;
+    left: 0;
   }
 
   li {
@@ -40,10 +45,20 @@ nav.shrinked {
   }
 }
 
+// Absolute, not relative: this logo is only ever shown crossfaded in over
+// the full one (nav.shrinked above), so while it's invisible it must not
+// reserve its own layout width sitting inline after the full logo — that
+// was quietly inflating .navbar-brand by ~40%, which both wasted space and
+// pushed the visible logo further off to the side than it needed to be.
+// Vertically centred against .navbar-brand (position: relative, below)
+// rather than a hand-placed offset, so it stays correct regardless of the
+// brand's own height in either state.
 .shrink-only {
   opacity: 0;
-  position: relative;
-  left: -256px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
 }
 
 .top-bar {
@@ -116,8 +131,12 @@ nav.shrinked {
     top: 0.5em;
   }
   
-  .navbar .navbar-brand 
+  .navbar .navbar-brand
   {
+    // Positioning context for .shrink-only below, which is absolutely
+    // positioned so it never reserves layout width of its own.
+    position: relative;
+
     &:hover, &:active, &:focus {
       text-decoration: none;
     }
@@ -128,6 +147,25 @@ nav.shrinked {
     }
     img.shrink-only {
       max-height: 16px;
+    }
+  }
+
+  // Bootstrap's own .navbar > .container ships with justify-content:
+  // space-between, which is correct once the expanded menu is showing real
+  // links to push to the far side. Below the menu breakpoint there's
+  // nothing else in that row but the toggler and the brand, and
+  // space-between shoves those two to opposite ends of it instead of
+  // keeping them together — the brand ends up reading as if it's floating
+  // in the middle of the header. Below that breakpoint the brand should
+  // just sit right after the toggler instead, with a small gap standing in
+  // for the separation space-between used to provide.
+  @media (max-width: 991.98px) {
+    .navbar > .container {
+      justify-content: flex-start;
+    }
+
+    .navbar .navbar-brand {
+      margin-left: 12px;
     }
   }
   

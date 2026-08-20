@@ -516,13 +516,46 @@ function resolveMemberStatus(member, entry, now) {
    public-holidays pages. Returned raw; the page decides how to format them.
    ============================================================================= */
 
-// `fromDateStr` defaults to today, but the page passes the instant it is
-// currently showing — viewing December and being told about August's holidays
-// would be the one part of the board still answering for real now.
-function getUpcomingHolidays(count, fromDateStr) {
-    var from = fromDateStr || getScheduleToday();
+// The instant the team actually goes fully quiet for a holiday, and the
+// instant work picks back up — derived from the shift catalog rather than
+// assumed to be exactly one calendar day, so it stays correct if shift hours
+// ever change. `dateStr` can be any date inside the holiday: a run of
+// adjacent holidays (Diwali's "New Year" and "Bhai Dooj" land back to back
+// most years — see 2025-10-22/23 and 2026-11-10/11 in holidays.js) shares one
+// outage window, so both sides walk past neighbouring holiday dates rather
+// than assuming exactly one blocked day.
+function getHolidayOutageWindow(dateStr) {
+    var tz = SCHEDULE_DATA.timezone;
+    var laneShifts = getShiftsInUse();
+
+    var lastWorkingDay = moment.tz(dateStr, 'YYYY-MM-DD', tz).subtract(1, 'day');
+    while (getHolidayOn(lastWorkingDay.format('YYYY-MM-DD'))) { lastWorkingDay.subtract(1, 'day'); }
+
+    var nextWorkingDay = moment.tz(dateStr, 'YYYY-MM-DD', tz).add(1, 'day');
+    while (getHolidayOn(nextWorkingDay.format('YYYY-MM-DD'))) { nextWorkingDay.add(1, 'day'); }
+
+    return {
+        start: moment.max(laneShifts.map(function (shift) {
+            return getShiftInstantsOn(shift.id, lastWorkingDay.format('YYYY-MM-DD')).end;
+        })),
+        end: moment.min(laneShifts.map(function (shift) {
+            return getShiftInstantsOn(shift.id, nextWorkingDay.format('YYYY-MM-DD')).start;
+        })),
+    };
+}
+
+// `now` defaults to real now, but the page passes the instant it is currently
+// showing — viewing December and being told about August's holidays would be
+// the one part of the board still answering for real now.
+//
+// A holiday counts as upcoming through the whole of its outage, not just its
+// own calendar date: the team is still off into the next morning, so a
+// holiday that started yesterday belongs here until work actually resumes,
+// not until midnight happens to tick over.
+function getUpcomingHolidays(count, now) {
+    var reference = now || moment();
     return getHolidays()
-        .filter(function (h) { return h.date >= from; })
+        .filter(function (h) { return getHolidayOutageWindow(h.date).end.isAfter(reference); })
         .sort(function (a, b) { return a.date < b.date ? -1 : 1; })
         .slice(0, count);
 }
