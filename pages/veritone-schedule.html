@@ -27,7 +27,9 @@ description: UpVision Team Schedule.
                         <a class="noc-holidays-label" href="{{ '/public-holidays' | relative_url }}" target="_blank" rel="noopener">Upcoming Holidays</a>
                         <div class="noc-holidays-list" id="noc-holidays-list"></div>
                     </div>
-                    <div class="noc-legend" id="noc-legend"></div>
+                    <div class="noc-legend-block">
+                        <div class="noc-legend" id="noc-legend"></div>
+                    </div>
                 </div>
 
                 <div class="noc-toprow">
@@ -552,17 +554,32 @@ description: UpVision Team Schedule.
         font-weight: 700;
     }
 
-    .noc-legend {
+    /* Same two-layer split as .noc-tz-block / .noc-tz-pills below: this outer
+       box is what carries the row's leftover space (flex: 1 1 auto,
+       margin-left: auto), and is only ever as wide as it needs to be for its
+       one child. Sizing and alignment live on different elements on purpose —
+       see .noc-legend for why. */
+    .noc-legend-block {
         flex: 1 1 auto;
         margin-left: auto;
         display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    /* Right-aligned when the items fit on one line: this box hugs its own
+       content, so .noc-legend-block's flex-end pushes that (smaller) box
+       flush against the panel edge. Once the items no longer fit — a narrow
+       viewport, not a fixed breakpoint — this box is forced to the full width
+       .noc-legend-block has to give it in order to wrap at all, at which
+       point flex-end no longer has a narrower box to push around and
+       flex-start is what actually governs: each wrapped line reads left to
+       right from that width's own left edge. The switch is a side effect of
+       running out of room, not a media query, so it lands whenever it lands. */
+    .noc-legend {
+        display: flex;
         flex-wrap: wrap;
         align-items: center;
-        /* flex-start, not flex-end: this box is as wide as the row's leftover
-           space, and once the items need more than one line, flex-end
-           right-aligns each line independently — the second line reads as
-           shoved into the middle of the row instead of continuing to read
-           left to right under the first. */
         justify-content: flex-start;
         align-content: center;
         gap: 12px;
@@ -687,11 +704,13 @@ description: UpVision Team Schedule.
         position: sticky;
         left: 0;
         background: var(--nb-surface);
-        /* Above #noc-tzcmp-now-overlay (z-index 20) and everything drawn into
-           it — the now/ref/select lines, the crosshair, the shift blocks. That
-           overlay scrolls with the timeline content while this label stays
-           pinned, so once the board is scrolled its content would otherwise
-           slide underneath and paint over the sticky zone name. */
+        /* Above EVERYTHING that can scroll underneath it — the shift blocks and
+           hour-strip wash (z-index: auto), and the whole #noc-tzcmp-now-overlay
+           layer (now/ref/select lines, every chip, the crosshair — 6 to 23).
+           This is a frozen column: whatever scrolls into its zone gets covered
+           cleanly by its opaque background, the same as a frozen column in a
+           spreadsheet would. The zone name is the one thing on this row that
+           must never be the part that gets covered. */
         z-index: 30;
         /* A sticky element only covers its own box, which starts at .noc-board's
            PADDING edge (left:0 sticks flush with that, not the board's outer
@@ -1538,6 +1557,14 @@ description: UpVision Team Schedule.
                 var(--nb-now-line) 10%,
                 var(--nb-now-line) 90%,
                 rgba(41, 41, 41, 0.28) 100%);
+        /* A static, unblurred lane behind the hairline, wide enough to sit on
+           top of both a phase-wash row and the plain board background between
+           rows. Without it, the line crosses a real color edge at every row
+           boundary (a saturated phase color giving way to bare --nb-surface),
+           and that edge is what reads as a break in the line. The lane keeps
+           its own backdrop constant end-to-end, so the line looks unbroken
+           regardless of what row or gap it happens to be over. */
+        box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.55);
         animation: noc-now-glow 2.6s ease-in-out infinite;
     }
 
@@ -1545,11 +1572,11 @@ description: UpVision Team Schedule.
 
         0%,
         100% {
-            box-shadow: 0 0 4px 0 rgba(41, 41, 41, 0.16);
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.55), 0 0 4px 0 rgba(41, 41, 41, 0.16);
         }
 
         50% {
-            box-shadow: 0 0 9px 1px rgba(41, 41, 41, 0.30);
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.55), 0 0 9px 1px rgba(41, 41, 41, 0.30);
         }
     }
 
@@ -1737,6 +1764,7 @@ description: UpVision Team Schedule.
         border-left: 1px dashed var(--nb-text-muted);
         border-radius: 0;
         opacity: 0.75;
+        box-shadow: none;
         animation: none;
     }
 
@@ -1744,10 +1772,12 @@ description: UpVision Team Schedule.
         display: none;
     }
 
+    /* .noc-now-line and its orb (::before) are deliberately exempt: this is the
+       one indicator on the board that stands for "live" rather than decoration,
+       and a reader who has reduced-motion on system-wide still needs it to read
+       as live, not as a frozen dot. */
     @media (prefers-reduced-motion: reduce) {
 
-        .noc-now-line,
-        .noc-now-line::before,
         .noc-ref-line.is-flash::after,
         .noc-avatar.is-active {
             animation: none;
@@ -1764,6 +1794,9 @@ description: UpVision Team Schedule.
         top: 50%;
         left: 50%;
         transform: translate(6px, -50%);
+        /* Below .noc-tzcmp-label (z-index 30) on purpose: once this chip scrolls
+           into the sticky zone-name column, the column is what has to stay
+           readable, not the chip riding underneath it. */
         z-index: 6;
         background: var(--nb-now-line);
         color: #ffffff;
