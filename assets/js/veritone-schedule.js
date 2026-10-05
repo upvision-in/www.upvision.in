@@ -46,7 +46,7 @@ var SCHEDULE_DATA = {
         { id: 'shital', name: 'Shital', shiftId: 'afternoon', weeklyOffId: 'sat-sun', team: 'NOC' },
         { id: 'priyen', name: 'Priyen', shiftId: 'afternoon', weeklyOffId: 'sat-sun', team: 'SwDevOps' },
         { id: 'ankit', name: 'Ankit', shiftId: 'late-evening', weeklyOffId: 'sat-sun', team: 'SwDevOps' },
-        { id: 'vedant', name: 'Vedant', shiftId: 'night', weeklyOffId: 'sat-sun', team: 'CloudOps' },
+        { id: 'vedant', name: 'Vedant', shiftId: 'late-evening', weeklyOffId: 'sat-sun', team: 'CloudOps' },
         { id: 'viral', name: 'Viral', shiftId: 'morning', weeklyOffId: 'fri-sat', team: 'CloudOps' },
         { id: 'parag', name: 'Parag', shiftId: 'afternoon', weeklyOffId: 'fri-sat', team: 'CloudOps, NOC' },
         { id: 'h-jayesh', name: 'H Jayesh', shiftId: 'night', weeklyOffId: 'sun-mon', team: 'NOC' },
