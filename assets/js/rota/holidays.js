@@ -37,6 +37,14 @@ function getHolidays() {
 }
 
 
+// Parse a "YYYY-MM-DD" holiday date as a local calendar date.
+// new Date("YYYY-MM-DD") parses as UTC midnight, which shifts the day backwards in timezones west of UTC.
+function parseHolidayDate(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+
 // Utility - Find current financial year - Start
 function getIndianFinancialYear() {
   const currentDate = new Date();  // Get the current date
@@ -74,7 +82,7 @@ function getNextIndianFinancialYear(currentYear) {
 function getPublicHolidays(year) {
   const holidays = getHolidays(); // Get all holidays
   return holidays.filter(holiday => {
-    const holidayYear = new Date(holiday.date).getFullYear(); // Get the year of the holiday
+    const holidayYear = parseHolidayDate(holiday.date).getFullYear(); // Get the year of the holiday
     return holidayYear === year; // Filter holidays that match the given year
   });
 }
@@ -88,7 +96,7 @@ function getPublicHolidaysForFinancialYear(year) {
   const endDate = new Date(year + 1, 2, 31); // 31st March of the next year (financial year end)
 
   return holidays.filter(holiday => {
-    const holidayDate = new Date(holiday.date); // Convert holiday date to Date object
+    const holidayDate = parseHolidayDate(holiday.date); // Convert holiday date to Date object
     return holidayDate >= startDate && holidayDate <= endDate; // Filter holidays within the financial year range
   });
 }
@@ -119,7 +127,7 @@ function generateHolidaysHtmlTable(holidays) {
 }
 
 function generateHolidayHtmlRow(holiday) {
-  const date = new Date(holiday.date);
+  const date = parseHolidayDate(holiday.date);
 
   // Format the date in the desired format (e.g., "14-Jan-24")
   const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${date.getFullYear().toString().slice(-2)}`;
@@ -157,7 +165,7 @@ function generateYearlyHolidayFullCalendar(elementId, holidays, renderFinancialY
       schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
       timeZone: 'Asia/Kolkata',
       initialView: renderFinancialYear ? 'multiMonthFinancialYear' : 'multiMonthYear',
-      initialDate: `${new Date(holidays[0].date).getFullYear()}-${renderFinancialYear ? '04' : '01'}-01`,
+      initialDate: `${parseHolidayDate(holidays[0].date).getFullYear()}-${renderFinancialYear ? '04' : '01'}-01`,
       multiMonthMinWidth: 225,
       multiMonthMaxColumns: 4,
       views: {
